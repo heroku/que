@@ -144,3 +144,4 @@ This will iterate the specs one thousand times, each with a different ordering. 
 Note that we iterate because there's no guarantee that the hang would reappear with a single additional run, so we need to rerun the specs until it reappears. The LOG_SPEC parameter will output the name and file location of each spec before it is run, so you can easily tell which spec is hanging, and you can continue narrowing things down from there.
 
 Another helpful technique is to replace an `it` spec declaration with `hit` - this will run that particular spec 100 times during the run.
+test
