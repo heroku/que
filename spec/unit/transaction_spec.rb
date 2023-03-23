@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-describe Que, '.transaction' do
+describe Que_0_14_3, '.transaction' do
   it "should use a transaction to rollback changes in the event of an error" do
     proc do
-      Que.transaction do
-        Que.execute "DROP TABLE que_jobs"
-        Que.execute "invalid SQL syntax"
+      Que_0_14_3.transaction do
+        Que_0_14_3.execute "DROP TABLE que_jobs"
+        Que_0_14_3.execute "invalid SQL syntax"
       end
     end.should raise_error(PG::Error)
 
@@ -19,8 +19,8 @@ describe Que, '.transaction' do
       q = Queue.new
 
       t = Thread.new do
-        Que.transaction do
-          Que.execute "DROP TABLE que_jobs"
+        Que_0_14_3.transaction do
+          Que_0_14_3.execute "DROP TABLE que_jobs"
           q.push :go!
           sleep
         end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Que::Job, '.run' do
+describe Que_0_14_3::Job, '.run' do
   it "should immediately process the job with the arguments given to it" do
     result = ArgsJob.run 1, 'two', {:three => 3}
     result.should be_an_instance_of ArgsJob

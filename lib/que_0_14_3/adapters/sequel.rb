@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Que
+module Que_0_14_3
   module Adapters
     class Sequel < Base
       def initialize(db)
@@ -13,7 +13,7 @@ module Que
       end
 
       def wake_worker_after_commit
-        @db.after_commit { Que.wake! }
+        @db.after_commit { Que_0_14_3.wake! }
       end
     end
   end

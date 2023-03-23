@@ -4,10 +4,10 @@ require 'spec_helper'
 
 # A few specs to ensure that the ideas given in the customizing_que document
 # stay functional.
-describe "Customizing Que" do
+describe "Customizing Que_0_14_3" do
   it "Cron should allow for easy recurring jobs" do
     begin
-      class CronJob < Que::Job
+      class CronJob < Que_0_14_3::Job
         # Default repetition interval in seconds. Can be overridden in
         # subclasses. Can use 1.minute if using Rails.
         INTERVAL = 60
@@ -43,7 +43,7 @@ describe "Customizing Que" do
       $args.should be nil
       $time_range.should be nil
 
-      Que::Job.work
+      Que_0_14_3::Job.work
 
       $args.should == {'arg' => 4}
       $time_range.begin.to_f.round(6).should be_within(0.000001).of t
@@ -64,7 +64,7 @@ describe "Customizing Que" do
 
   it "Object#delay should allow for simpler job enqueueing" do
     begin
-      class Delayed < Que::Job
+      class Delayed < Que_0_14_3::Job
         def run(receiver, method, args)
           Marshal.load(receiver).send method, *Marshal.load(args)
         end
@@ -95,7 +95,7 @@ describe "Customizing Que" do
       end
 
       MyModule.delay.blah
-      Que::Job.work
+      Que_0_14_3::Job.work
 
       $run.should be true
     ensure
@@ -105,7 +105,7 @@ describe "Customizing Que" do
 
   it "QueueClassic-style jobs should be easy" do
     begin
-      class Command < Que::Job
+      class Command < Que_0_14_3::Job
         def run(method, *args)
           receiver, message = method.split('.')
           Object.const_get(receiver).send(message, *args)
@@ -121,7 +121,7 @@ describe "Customizing Que" do
       end
 
       Command.enqueue "MyModule.blah", "hello world"
-      Que::Job.work
+      Que_0_14_3::Job.work
 
       $value.should == "hello world"
     ensure
@@ -131,7 +131,7 @@ describe "Customizing Que" do
 
   describe "retaining deleted jobs" do
     before do
-      Que.execute "CREATE TABLE finished_jobs AS SELECT * FROM que_jobs LIMIT 0"
+      Que_0_14_3.execute "CREATE TABLE finished_jobs AS SELECT * FROM que_jobs LIMIT 0"
     end
 
     after do
@@ -139,9 +139,9 @@ describe "Customizing Que" do
     end
 
     it "with a Ruby override" do
-      class MyJobClass < Que::Job
+      class MyJobClass < Que_0_14_3::Job
         def destroy
-          Que.execute "INSERT INTO finished_jobs SELECT * FROM que_jobs WHERE queue = $1::text AND priority = $2::integer AND run_at = $3::timestamptz AND job_id = $4::bigint", @attrs.values_at(:queue, :priority, :run_at, :job_id)
+          Que_0_14_3.execute "INSERT INTO finished_jobs SELECT * FROM que_jobs WHERE queue = $1::text AND priority = $2::integer AND run_at = $3::timestamptz AND job_id = $4::bigint", @attrs.values_at(:queue, :priority, :run_at, :job_id)
           super
         end
       end
@@ -150,7 +150,7 @@ describe "Customizing Que" do
       end
 
       MyJob.enqueue 1, 'arg1', :priority => 89
-      Que::Job.work
+      Que_0_14_3::Job.work
 
       DB[:finished_jobs].count.should == 1
       job = DB[:finished_jobs].first
@@ -160,7 +160,7 @@ describe "Customizing Que" do
 
     it "with a trigger" do
       begin
-        Que.execute <<-SQL
+        Que_0_14_3.execute <<-SQL
           CREATE FUNCTION please_save_my_job()
           RETURNS trigger
           LANGUAGE plpgsql
@@ -172,10 +172,10 @@ describe "Customizing Que" do
           $$;
         SQL
 
-        Que.execute "CREATE TRIGGER keep_all_my_old_jobs BEFORE DELETE ON que_jobs FOR EACH ROW EXECUTE PROCEDURE please_save_my_job();"
+        Que_0_14_3.execute "CREATE TRIGGER keep_all_my_old_jobs BEFORE DELETE ON que_jobs FOR EACH ROW EXECUTE PROCEDURE please_save_my_job();"
 
-        Que::Job.enqueue 2, 'arg2', :priority => 45
-        Que::Job.work
+        Que_0_14_3::Job.enqueue 2, 'arg2', :priority => 45
+        Que_0_14_3::Job.work
 
         DB[:finished_jobs].count.should == 1
         job = DB[:finished_jobs].first
@@ -190,7 +190,7 @@ describe "Customizing Que" do
 
   describe "not retrying specific failed jobs" do
     before do
-      Que.execute "CREATE TABLE failed_jobs AS SELECT * FROM que_jobs LIMIT 0"
+      Que_0_14_3.execute "CREATE TABLE failed_jobs AS SELECT * FROM que_jobs LIMIT 0"
     end
 
     after do
@@ -217,13 +217,13 @@ describe "Customizing Que" do
                 SELECT * FROM failed;
             SQL
 
-            Que.execute sql, @attrs.values_at(:queue, :priority, :run_at, :job_id)
+            Que_0_14_3.execute sql, @attrs.values_at(:queue, :priority, :run_at, :job_id)
 
             raise
           end
         end
 
-        class SkipRetryJob < Que::Job
+        class SkipRetryJob < Que_0_14_3::Job
           prepend SkipRetries
 
           def run(*args)
@@ -233,7 +233,7 @@ describe "Customizing Que" do
         end
 
         SkipRetryJob.enqueue 1, 'arg1', :other_arg => 'blah'
-        Que::Job.work
+        Que_0_14_3::Job.work
 
         $retry_job_args.should == [1, 'arg1', {'other_arg' => 'blah'}]
 

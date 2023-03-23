@@ -2,13 +2,13 @@
 
 require 'spec_helper'
 
-describe Que::Job, '.enqueue' do
+describe Que_0_14_3::Job, '.enqueue' do
   it "should be able to queue a job" do
     DB[:que_jobs].count.should be 0
-    result = Que::Job.enqueue
+    result = Que_0_14_3::Job.enqueue
     DB[:que_jobs].count.should be 1
 
-    result.should be_an_instance_of Que::Job
+    result.should be_an_instance_of Que_0_14_3::Job
     result.attrs[:queue].should == ''
     result.attrs[:priority].should == 100
     result.attrs[:args].should == []
@@ -17,32 +17,32 @@ describe Que::Job, '.enqueue' do
     job[:queue].should == ''
     job[:priority].should be 100
     job[:run_at].should be_within(3).of Time.now
-    job[:job_class].should == "Que::Job"
+    job[:job_class].should == "Que_0_14_3::Job"
     JSON.load(job[:args]).should == []
   end
 
   it "should be aliased to .queue" do
     DB[:que_jobs].count.should be 0
-    suppress_warnings { Que::Job.queue }
+    suppress_warnings { Que_0_14_3::Job.queue }
     DB[:que_jobs].count.should be 1
   end
 
   it "should be able to queue a job with arguments" do
     DB[:que_jobs].count.should be 0
-    Que::Job.enqueue 1, 'two'
+    Que_0_14_3::Job.enqueue 1, 'two'
     DB[:que_jobs].count.should be 1
 
     job = DB[:que_jobs].first
     job[:queue].should == ''
     job[:priority].should be 100
     job[:run_at].should be_within(3).of Time.now
-    job[:job_class].should == "Que::Job"
+    job[:job_class].should == "Que_0_14_3::Job"
     JSON.load(job[:args]).should == [1, 'two']
   end
 
   it "should be able to queue a job with complex arguments" do
     DB[:que_jobs].count.should be 0
-    Que::Job.enqueue 1, 'two', :string => "string",
+    Que_0_14_3::Job.enqueue 1, 'two', :string => "string",
                              :integer => 5,
                              :array => [1, "two", {:three => 3}],
                              :hash => {:one => 1, :two => 'two', :three => [3]}
@@ -53,7 +53,7 @@ describe Que::Job, '.enqueue' do
     job[:queue].should == ''
     job[:priority].should be 100
     job[:run_at].should be_within(3).of Time.now
-    job[:job_class].should == "Que::Job"
+    job[:job_class].should == "Que_0_14_3::Job"
     JSON.load(job[:args]).should == [
       1,
       'two',
@@ -68,46 +68,46 @@ describe Que::Job, '.enqueue' do
 
   it "should be able to queue a job with a specific time to run" do
     DB[:que_jobs].count.should be 0
-    Que::Job.enqueue 1, :run_at => Time.now + 60
+    Que_0_14_3::Job.enqueue 1, :run_at => Time.now + 60
     DB[:que_jobs].count.should be 1
 
     job = DB[:que_jobs].first
     job[:queue].should == ''
     job[:priority].should be 100
     job[:run_at].should be_within(3).of Time.now + 60
-    job[:job_class].should == "Que::Job"
+    job[:job_class].should == "Que_0_14_3::Job"
     JSON.load(job[:args]).should == [1]
   end
 
   it "should be able to queue a job with a specific priority" do
     DB[:que_jobs].count.should be 0
-    Que::Job.enqueue 1, :priority => 4
+    Que_0_14_3::Job.enqueue 1, :priority => 4
     DB[:que_jobs].count.should be 1
 
     job = DB[:que_jobs].first
     job[:queue].should == ''
     job[:priority].should be 4
     job[:run_at].should be_within(3).of Time.now
-    job[:job_class].should == "Que::Job"
+    job[:job_class].should == "Que_0_14_3::Job"
     JSON.load(job[:args]).should == [1]
   end
 
   it "should be able to queue a job with queueing options in addition to argument options" do
     DB[:que_jobs].count.should be 0
-    Que::Job.enqueue 1, :string => "string", :run_at => Time.now + 60, :priority => 4
+    Que_0_14_3::Job.enqueue 1, :string => "string", :run_at => Time.now + 60, :priority => 4
     DB[:que_jobs].count.should be 1
 
     job = DB[:que_jobs].first
     job[:queue].should == ''
     job[:priority].should be 4
     job[:run_at].should be_within(3).of Time.now + 60
-    job[:job_class].should == "Que::Job"
+    job[:job_class].should == "Que_0_14_3::Job"
     JSON.load(job[:args]).should == [1, {'string' => 'string'}]
   end
 
   it "should respect a job class defined as a string" do
-    Que.enqueue 'argument', :queue => 'my_queue', :other_arg => 'other_arg', :job_class => 'MyJobClass'
-    Que::Job.enqueue 'argument', :queue => 'my_queue', :other_arg => 'other_arg', :job_class => 'MyJobClass'
+    Que_0_14_3.enqueue 'argument', :queue => 'my_queue', :other_arg => 'other_arg', :job_class => 'MyJobClass'
+    Que_0_14_3::Job.enqueue 'argument', :queue => 'my_queue', :other_arg => 'other_arg', :job_class => 'MyJobClass'
 
     DB[:que_jobs].count.should be 2
     DB[:que_jobs].all.each do |job|
@@ -118,7 +118,7 @@ describe Que::Job, '.enqueue' do
   end
 
   it "should respect a default (but overridable) priority for the job class" do
-    class DefaultPriorityJob < Que::Job
+    class DefaultPriorityJob < Que_0_14_3::Job
       @priority = 3
     end
 
@@ -143,7 +143,7 @@ describe Que::Job, '.enqueue' do
   end
 
   it "should respect the old @default_priority setting" do
-    class OldDefaultPriorityJob < Que::Job
+    class OldDefaultPriorityJob < Que_0_14_3::Job
       @default_priority = 3
     end
 
@@ -170,7 +170,7 @@ describe Que::Job, '.enqueue' do
   end
 
   it "should respect a default (but overridable) run_at for the job class" do
-    class DefaultRunAtJob < Que::Job
+    class DefaultRunAtJob < Que_0_14_3::Job
       @run_at = -> { Time.now + 60 }
     end
 
@@ -195,7 +195,7 @@ describe Que::Job, '.enqueue' do
   end
 
   it "should respect the old @default_run_at setting" do
-    class OldDefaultRunAtJob < Que::Job
+    class OldDefaultRunAtJob < Que_0_14_3::Job
       @default_run_at = -> { Time.now + 60 }
     end
 
@@ -222,7 +222,7 @@ describe Que::Job, '.enqueue' do
   end
 
   it "should respect a default (but overridable) queue for the job class" do
-    class NamedQueueJob < Que::Job
+    class NamedQueueJob < Que_0_14_3::Job
       @queue = :my_queue
     end
 

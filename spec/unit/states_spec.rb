@@ -2,13 +2,13 @@
 
 require 'spec_helper'
 
-describe Que, '.worker_states' do
+describe Que_0_14_3, '.worker_states' do
   it "should return a list of the job types in the queue, their counts and the number of each currently running" do
-    Que.adapter = QUE_ADAPTERS[:connection_pool]
+    Que_0_14_3.adapter = QUE_ADAPTERS[:connection_pool]
 
     class WorkerStateJob < BlockJob
       def run
-        $pid = Que.execute("select pg_backend_pid()").first[:pg_backend_pid]
+        $pid = Que_0_14_3.execute("select pg_backend_pid()").first[:pg_backend_pid]
         super
       end
     end
@@ -19,10 +19,10 @@ describe Que, '.worker_states' do
     # job_ids functions correctly.
     DB[:que_jobs].update(:job_id => 2**33)
 
-    t = Thread.new { Que::Job.work }
+    t = Thread.new { Que_0_14_3::Job.work }
     $q1.pop
 
-    states = Que.worker_states
+    states = Que_0_14_3.worker_states
     states.length.should be 1
 
     $q2.push nil

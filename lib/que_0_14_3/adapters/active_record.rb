@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Que
+module Que_0_14_3
   module Adapters
     class ActiveRecord < Base
       def checkout
@@ -26,7 +26,7 @@ module Que
       def checkout_activerecord_adapter(&block)
         # Use Rails' executor (if present) to make sure that the connection
         # we're using isn't taken from us while the block runs. See
-        # https://github.com/chanks/que/issues/166#issuecomment-274218910
+        # https://github.com/chanks/que_0_14_3/issues/166#issuecomment-274218910
         if defined?(Rails.application.executor)
           Rails.application.executor.wrap do
             ::ActiveRecord::Base.connection_pool.with_connection(&block)

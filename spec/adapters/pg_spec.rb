@@ -2,15 +2,15 @@
 
 require 'spec_helper'
 
-describe "Que using a bare PG connection" do
-  it_behaves_like "a Que adapter"
+describe "Que_0_14_3 using a bare PG connection" do
+  it_behaves_like "a Que_0_14_3 adapter"
 
   it "should synchronize access to that connection" do
-    lock   = Que.adapter.lock
+    lock   = Que_0_14_3.adapter.lock
     q1, q2 = Queue.new, Queue.new
 
     thread1 = Thread.new do
-      Que.adapter.checkout do
+      Que_0_14_3.adapter.checkout do
         q1.push nil
         q2.pop
       end
@@ -19,7 +19,7 @@ describe "Que using a bare PG connection" do
     q1.pop
 
     thread2 = Thread.new do
-      Que.adapter.checkout do
+      Que_0_14_3.adapter.checkout do
         q1.push nil
         q2.pop
       end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Que
+module Que_0_14_3
   SQL = {
     # Locks a job using a Postgres recursive CTE [1].
     #

@@ -2,7 +2,7 @@
 
 require 'monitor'
 
-module Que
+module Que_0_14_3
   module Adapters
     class PG < Base
       attr_reader :lock

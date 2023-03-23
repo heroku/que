@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Que
+module Que_0_14_3
   class Job
     attr_reader :attrs, :_error
 
@@ -9,7 +9,7 @@ module Que
     end
 
     # Subclasses should define their own run methods, but keep an empty one
-    # here so that Que::Job.enqueue can queue an empty job in testing.
+    # here so that Que_0_14_3::Job.enqueue can queue an empty job in testing.
     def run(*args)
     end
 
@@ -21,9 +21,9 @@ module Que
       run_error_notifier = handle_error(error)
       destroy unless @retried || @destroyed
 
-      if run_error_notifier && Que.error_notifier
+      if run_error_notifier && Que_0_14_3.error_notifier
         # Protect the work loop from a failure of the error notifier.
-        Que.error_notifier.call(error, @attrs) rescue nil
+        Que_0_14_3.error_notifier.call(error, @attrs) rescue nil
       end
     end
 
@@ -45,12 +45,12 @@ module Que
     end
 
     def retry_in(period)
-      Que.execute :set_error, [period, error_message] + @attrs.values_at(:queue, :priority, :run_at, :job_id)
+      Que_0_14_3.execute :set_error, [period, error_message] + @attrs.values_at(:queue, :priority, :run_at, :job_id)
       @retried = true
     end
 
     def destroy
-      Que.execute :destroy_job, attrs.values_at(:queue, :priority, :run_at, :job_id)
+      Que_0_14_3.execute :destroy_job, attrs.values_at(:queue, :priority, :run_at, :job_id)
       @destroyed = true
     end
 
@@ -71,13 +71,13 @@ module Que
 
         attrs = {:job_class => job_class || to_s, :args => args}
 
-        warn "@default_run_at in #{to_s} has been deprecated and will be removed in Que version 1.0.0. Please use @run_at instead." if @default_run_at
+        warn "@default_run_at in #{to_s} has been deprecated and will be removed in Que_0_14_3 version 1.0.0. Please use @run_at instead." if @default_run_at
 
         if t = run_at || @run_at && @run_at.call || @default_run_at && @default_run_at.call
           attrs[:run_at] = t
         end
 
-        warn "@default_priority in #{to_s} has been deprecated and will be removed in Que version 1.0.0. Please use @priority instead." if @default_priority
+        warn "@default_priority in #{to_s} has been deprecated and will be removed in Que_0_14_3 version 1.0.0. Please use @priority instead." if @default_priority
 
         if p = priority || @priority || @default_priority
           attrs[:priority] = p
@@ -87,17 +87,17 @@ module Que
           attrs[:queue] = q
         end
 
-        if Que.mode == :sync && !t
+        if Que_0_14_3.mode == :sync && !t
           run(*attrs[:args])
         else
-          values = Que.execute(:insert_job, attrs.values_at(:queue, :priority, :run_at, :job_class, :args)).first
-          Que.adapter.wake_worker_after_commit unless t
+          values = Que_0_14_3.execute(:insert_job, attrs.values_at(:queue, :priority, :run_at, :job_class, :args)).first
+          Que_0_14_3.adapter.wake_worker_after_commit unless t
           new(values)
         end
       end
 
       def queue(*args)
-        warn "#{to_s}.queue(*args) is deprecated and will be removed in Que version 1.0.0. Please use #{to_s}.enqueue(*args) instead."
+        warn "#{to_s}.queue(*args) is deprecated and will be removed in Que_0_14_3 version 1.0.0. Please use #{to_s}.enqueue(*args) instead."
         enqueue(*args)
       end
 
@@ -111,9 +111,9 @@ module Que
         # same connection throughout the process of getting a job, working it,
         # deleting it, and removing the lock.
         return_value =
-          Que.adapter.checkout do
+          Que_0_14_3.adapter.checkout do
             begin
-              if job = Que.execute(:lock_job, [queue]).first
+              if job = Que_0_14_3.execute(:lock_job, [queue]).first
                 # Edge case: It's possible for the lock_job query to have
                 # grabbed a job that's already been worked, if it took its MVCC
                 # snapshot while the job was processing, but didn't attempt the
@@ -124,7 +124,7 @@ module Que
                 # Note that there is currently no spec for this behavior, since
                 # I'm not sure how to reliably commit a transaction that deletes
                 # the job in a separate thread between lock_job and check_job.
-                if Que.execute(:check_job, job.values_at(:queue, :priority, :run_at, :job_id)).none?
+                if Que_0_14_3.execute(:check_job, job.values_at(:queue, :priority, :run_at, :job_id)).none?
                   {:event => :job_race_condition}
                 else
                   klass = class_for(job[:job_class])
@@ -146,16 +146,16 @@ module Que
                   interval = klass && klass.respond_to?(:retry_interval) && klass.retry_interval || retry_interval
                   delay    = interval.respond_to?(:call) ? interval.call(count) : interval
                   message  = error_message(error)
-                  Que.execute :set_error, [delay, message] + job.values_at(:queue, :priority, :run_at, :job_id)
+                  Que_0_14_3.execute :set_error, [delay, message] + job.values_at(:queue, :priority, :run_at, :job_id)
                 end
               rescue
                 # If we can't reach the database for some reason, too bad, but
                 # don't let it crash the work loop.
               end
 
-              if Que.error_notifier
+              if Que_0_14_3.error_notifier
                 # Similarly, protect the work loop from a failure of the error notifier.
-                Que.error_notifier.call(error, job) rescue nil
+                Que_0_14_3.error_notifier.call(error, job) rescue nil
               end
 
               return {:event => :job_errored, :error => error, :job => job}
@@ -164,13 +164,13 @@ module Que
               # to do this so that they don't pile up in the database. Again, if
               # we can't reach the database, don't crash the work loop.
               begin
-                Que.execute "SELECT pg_advisory_unlock($1)", [job[:job_id]] if job
+                Que_0_14_3.execute "SELECT pg_advisory_unlock($1)", [job[:job_id]] if job
               rescue
               end
             end
           end
 
-        Que.adapter.cleanup!
+        Que_0_14_3.adapter.cleanup!
 
         return_value
       end
@@ -190,7 +190,7 @@ module Que
       end
 
       def class_for(string)
-        Que.constantize(string)
+        Que_0_14_3.constantize(string)
       end
     end
   end

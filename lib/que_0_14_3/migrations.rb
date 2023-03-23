@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Que
+module Que_0_14_3
   module Migrations
     # In order to ship a schema change, add the relevant up and down sql files
     # to the migrations directory, and bump the version both here and in the
@@ -9,7 +9,7 @@ module Que
 
     class << self
       def migrate!(options = {:version => CURRENT_VERSION})
-        Que.transaction do
+        Que_0_14_3.transaction do
           version = options[:version]
 
           if (current = db_version) == version
@@ -24,7 +24,7 @@ module Que
 
           steps.each do |step|
             sql = File.read("#{File.dirname(__FILE__)}/migrations/#{step}/#{direction}.sql")
-            Que.execute(sql)
+            Que_0_14_3.execute(sql)
           end
 
           set_db_version(version)
@@ -32,7 +32,7 @@ module Que
       end
 
       def db_version
-        result = Que.execute <<-SQL
+        result = Que_0_14_3.execute <<-SQL
           SELECT relname, description
           FROM pg_class
           LEFT JOIN pg_description ON pg_description.objoid = pg_class.oid
@@ -52,7 +52,7 @@ module Que
 
       def set_db_version(version)
         i = version.to_i
-        Que.execute "COMMENT ON TABLE que_jobs IS '#{i}'" unless i.zero?
+        Que_0_14_3.execute "COMMENT ON TABLE que_jobs IS '#{i}'" unless i.zero?
       end
     end
   end

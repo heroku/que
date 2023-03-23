@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'que'
+require 'que_0_14_3'
 require 'uri'
 require 'pg'
 require 'logger'
@@ -12,7 +12,7 @@ Dir['./spec/support/**/*.rb'].sort.each &method(:require)
 
 
 # Handy constants for initializing PG connections:
-QUE_URL = ENV['DATABASE_URL'] || 'postgres://postgres:@localhost/que-test'
+QUE_URL = ENV['DATABASE_URL'] || 'postgres://localhost/que-test'
 
 NEW_PG_CONNECTION = proc do
   uri = URI.parse(QUE_URL)
@@ -30,15 +30,15 @@ end
 
 
 # Adapters track which statements have been prepared for their connections,
-# and if Que.connection= is called before each spec, we're constantly creating
+# and if Que_0_14_3.connection= is called before each spec, we're constantly creating
 # new adapters and losing that information, which is bad. So instead, we hang
-# onto a few adapters and assign them using Que.adapter= as needed. The plain
+# onto a few adapters and assign them using Que_0_14_3.adapter= as needed. The plain
 # pg adapter is the default.
 
-# Also, let Que initialize the adapter itself, to make sure that the
+# Also, let Que_0_14_3 initialize the adapter itself, to make sure that the
 # recognition logic works. Similar code can be found in the adapter specs.
-Que.connection = NEW_PG_CONNECTION.call
-QUE_ADAPTERS = {:pg => Que.adapter}
+Que_0_14_3.connection = NEW_PG_CONNECTION.call
+QUE_ADAPTERS = {:pg => Que_0_14_3.adapter}
 
 
 
@@ -60,12 +60,12 @@ end
 
 # Reset the table to the most up-to-date version.
 DB.drop_table? :que_jobs
-Que::Migrations.migrate!
+Que_0_14_3::Migrations.migrate!
 
 
 
 # Set up a dummy logger.
-Que.logger = $logger = Object.new
+Que_0_14_3.logger = $logger = Object.new
 $logger_mutex = Mutex.new # Protect against rare errors on Rubinius/JRuby.
 
 def $logger.messages
@@ -105,19 +105,19 @@ RSpec.configure do |config|
     # helpful in identifying hanging specs.
     stdout.info "Running spec: #{desc} @ #{line}" if ENV['LOG_SPEC']
 
-    Que.adapter = QUE_ADAPTERS[:pg]
+    Que_0_14_3.adapter = QUE_ADAPTERS[:pg]
 
-    Que.worker_count = 0
-    Que.mode = :async
-    Que.wake_interval = nil
+    Que_0_14_3.worker_count = 0
+    Que_0_14_3.mode = :async
+    Que_0_14_3.wake_interval = nil
 
     $logger.messages.clear
 
     spec.run
 
-    Que.worker_count = 0
-    Que.mode = :off
-    Que.wake_interval = nil
+    Que_0_14_3.worker_count = 0
+    Que_0_14_3.mode = :off
+    Que_0_14_3.wake_interval = nil
 
     DB[:que_jobs].delete
 

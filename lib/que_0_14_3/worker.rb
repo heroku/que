@@ -2,7 +2,7 @@
 
 require 'monitor'
 
-module Que
+module Que_0_14_3
   class Worker
     # Each worker has a thread that does the actual work of running jobs.
     # Since both the worker's thread and whatever thread is managing the
@@ -75,7 +75,7 @@ module Que
       loop do
         cycle = nil
 
-        if Que.mode == :async
+        if Que_0_14_3.mode == :async
           time   = Time.now
           result = Job.work(queue)
 
@@ -98,7 +98,7 @@ module Que
             raise "Unknown Event: #{result[:event].inspect}"
           end
 
-          Que.log(result)
+          Que_0_14_3.log(result)
         end
 
         synchronize { @state = :sleeping unless cycle || @stop }
@@ -109,11 +109,11 @@ module Que
       @state = :stopped
     end
 
-    # Setting Que.wake_interval = nil should ensure that the wrangler thread
+    # Setting Que_0_14_3.wake_interval = nil should ensure that the wrangler thread
     # doesn't wake up a worker again, even if it's currently sleeping for a
     # set period. So, we double-check that @wake_interval is set before waking
     # a worker, and make sure to wake up the wrangler when @wake_interval is
-    # changed in Que.wake_interval= below.
+    # changed in Que_0_14_3.wake_interval= below.
     @wake_interval = 5
 
     # Four workers is a sensible default for most use cases.
@@ -129,7 +129,7 @@ module Que
       # post-fork hook (since forking will kill any running background threads).
 
       def mode=(mode)
-        Que.log :event => 'mode_change', :value => mode.to_s
+        Que_0_14_3.log :event => 'mode_change', :value => mode.to_s
         @mode = mode
 
         if mode == :async
@@ -139,7 +139,7 @@ module Que
       end
 
       def worker_count=(count)
-        Que.log :event => 'worker_count_change', :value => count.to_s
+        Que_0_14_3.log :event => 'worker_count_change', :value => count.to_s
         @worker_count = count
         set_up_workers if mode == :async
       end

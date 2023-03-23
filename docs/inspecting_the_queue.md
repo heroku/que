@@ -1,10 +1,10 @@
 ## Inspecting the Queue
 
-In order to remain simple and compatible with any ORM (or no ORM at all), Que is really just a very thin wrapper around some raw SQL. There are two methods available that query the jobs table and Postgres' system catalogs to retrieve information on the current state of the queue:
+In order to remain simple and compatible with any ORM (or no ORM at all), Que_0_14_3 is really just a very thin wrapper around some raw SQL. There are two methods available that query the jobs table and Postgres' system catalogs to retrieve information on the current state of the queue:
 
 ### Job Stats
 
-You can call `Que.job_stats` to return some aggregate data on the types of jobs currently in the queue. Example output:
+You can call `Que_0_14_3.job_stats` to return some aggregate data on the types of jobs currently in the queue. Example output:
 
 ```ruby
 [
@@ -31,7 +31,7 @@ This tells you that, for instance, there are ten ChargeCreditCard jobs in the qu
 
 ### Worker States
 
-You can call `Que.worker_states` to return some information on every worker touching the queue (not just those in the current process). Example output:
+You can call `Que_0_14_3.worker_states` to return some information on every worker touching the queue (not just those in the current process). Example output:
 
 ```ruby
 [
@@ -64,18 +64,18 @@ In this case, there is only one worker currently working the queue. The first se
 * `pg_transaction_started_at` - The timestamp for when the worker's current transaction (if any) began.
 * `pg_waiting_on_lock` - Whether or not the worker is waiting for a lock in Postgres to be released.
 
-### Custom Queries
+### Custom Que_0_14_3ries
 
-If you want to query the jobs table yourself to see what's been queued or to check the state of various jobs, you can always use Que to execute whatever SQL you want:
+If you want to query the jobs table yourself to see what's been queued or to check the state of various jobs, you can always use Que_0_14_3 to execute whatever SQL you want:
 
 ```ruby
-Que.execute("select count(*) from que_jobs") #=> [{"count"=>"492"}]
+Que_0_14_3.execute("select count(*) from que_jobs") #=> [{"count"=>"492"}]
 ```
 
-If you want to use ActiveRecord's features when querying, you can define your own model around Que's job table:
+If you want to use ActiveRecord's features when querying, you can define your own model around Que_0_14_3's job table:
 
 ```ruby
-class QueJob < ActiveRecord::Base
+class Que_0_14_3Job < ActiveRecord::Base
 end
 
 # Or:
@@ -90,7 +90,7 @@ Then you can query just as you would with any other model. Since the jobs table 
 If you're using Sequel, you can use the same technique:
 
 ```ruby
-class QueJob < Sequel::Model
+class Que_0_14_3Job < Sequel::Model
 end
 
 # Or:
@@ -102,7 +102,7 @@ end
 And note that Sequel *does* support composite primary keys:
 
 ```ruby
-job = QueJob.where(:job_class => "ChargeCreditCard").first
+job = Que_0_14_3Job.where(:job_class => "ChargeCreditCard").first
 job.priority = 1
 job.save
 ```

@@ -2,13 +2,13 @@
 
 require 'time' # For Time.parse.
 
-module Que
+module Que_0_14_3
   module Adapters
-    autoload :ActiveRecord,   'que/adapters/active_record'
-    autoload :ConnectionPool, 'que/adapters/connection_pool'
-    autoload :PG,             'que/adapters/pg'
-    autoload :Pond,           'que/adapters/pond'
-    autoload :Sequel,         'que/adapters/sequel'
+    autoload :ActiveRecord,   'que_0_14_3/adapters/active_record'
+    autoload :ConnectionPool, 'que_0_14_3/adapters/connection_pool'
+    autoload :PG,             'que_0_14_3/adapters/pg'
+    autoload :Pond,           'que_0_14_3/adapters/pond'
+    autoload :Sequel,         'que_0_14_3/adapters/sequel'
 
     class Base
       def initialize(thing = nil)
@@ -23,7 +23,7 @@ module Que
         raise NotImplementedError
       end
 
-      # Called after Que has returned its connection to whatever pool it's
+      # Called after Que_0_14_3 has returned its connection to whatever pool it's
       # using.
       def cleanup!
       end
@@ -67,7 +67,7 @@ module Que
         checkout do |conn|
           # Prepared statement errors have the potential to foul up the entire
           # transaction, so if we're in one, err on the side of safety.
-          return execute_sql(SQL[name], params) if !Que.use_prepared_statements || in_transaction?
+          return execute_sql(SQL[name], params) if !Que_0_14_3.use_prepared_statements || in_transaction?
 
           statements = @prepared_statements[conn] ||= {}
 
@@ -83,7 +83,7 @@ module Que
             # objects to refer to new backends, so recover as well as we can.
 
             unless prepared_just_now
-              Que.log :level => 'warn', :event => "reprepare_statement", :name => name
+              Que_0_14_3.log :level => 'warn', :event => "reprepare_statement", :name => name
               statements[name] = false
               retry
             end
@@ -126,7 +126,7 @@ module Que
           end
         end
 
-        output.map!(&Que.json_converter)
+        output.map!(&Que_0_14_3.json_converter)
       end
     end
   end

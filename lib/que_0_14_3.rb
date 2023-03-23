@@ -3,13 +3,13 @@
 require 'socket' # For hostname
 require 'json'
 
-module Que
-  autoload :Adapters,   'que/adapters/base'
-  autoload :Job,        'que/job'
-  autoload :Migrations, 'que/migrations'
-  autoload :SQL,        'que/sql'
-  autoload :Version,    'que/version'
-  autoload :Worker,     'que/worker'
+module Que_0_14_3
+  autoload :Adapters,   'que_0_14_3/adapters/base'
+  autoload :Job,        'que_0_14_3/job'
+  autoload :Migrations, 'que_0_14_3/migrations'
+  autoload :SQL,        'que_0_14_3/sql'
+  autoload :Version,    'que_0_14_3/version'
+  autoload :Worker,     'que_0_14_3/worker'
 
   HASH_DEFAULT_PROC = proc { |hash, key| hash[key.to_s] if Symbol === key }
 
@@ -55,13 +55,13 @@ module Que
           when 'PG::Connection'             then Adapters::PG.new(connection)
           when 'Pond'                       then Adapters::Pond.new(connection)
           when 'NilClass'                   then connection
-          else raise "Que connection not recognized: #{connection.inspect}"
+          else raise "Que_0_14_3 connection not recognized: #{connection.inspect}"
           end
         end
     end
 
     def adapter
-      @adapter || raise("Que connection not established!")
+      @adapter || raise("Que_0_14_3 connection not established!")
     end
 
     def execute(*args)
@@ -132,22 +132,22 @@ module Que
     end
 
     def disable_prepared_statements
-      warn "Que.disable_prepared_statements has been deprecated, please update your code to invert the result of Que.disable_prepared_statements instead. This shim will be removed in Que version 1.0.0."
+      warn "Que_0_14_3.disable_prepared_statements has been deprecated, please update your code to invert the result of Que_0_14_3.disable_prepared_statements instead. This shim will be removed in Que_0_14_3 version 1.0.0."
       !use_prepared_statements
     end
 
     def disable_prepared_statements=(setting)
-      warn "Que.disable_prepared_statements= has been deprecated, please update your code to pass the inverted value to Que.use_prepared_statements= instead. This shim will be removed in Que version 1.0.0."
+      warn "Que_0_14_3.disable_prepared_statements= has been deprecated, please update your code to pass the inverted value to Que_0_14_3.use_prepared_statements= instead. This shim will be removed in Que_0_14_3 version 1.0.0."
       self.use_prepared_statements = !setting
     end
 
     def error_handler
-      warn "Que.error_handler has been renamed to Que.error_notifier, please update your code. This shim will be removed in Que version 1.0.0."
+      warn "Que_0_14_3.error_handler has been renamed to Que_0_14_3.error_notifier, please update your code. This shim will be removed in Que_0_14_3 version 1.0.0."
       error_notifier
     end
 
     def error_handler=(p)
-      warn "Que.error_handler= has been renamed to Que.error_notifier=, please update your code. This shim will be removed in Que version 1.0.0."
+      warn "Que_0_14_3.error_handler= has been renamed to Que_0_14_3.error_notifier=, please update your code. This shim will be removed in Que_0_14_3 version 1.0.0."
       self.error_notifier = p
     end
 
@@ -197,4 +197,4 @@ module Que
   end
 end
 
-require 'que/railtie' if defined? Rails::Railtie
+require 'que_0_14_3/railtie' if defined? Rails::Railtie

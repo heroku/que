@@ -9,7 +9,7 @@ require 'connection_pool'
 
 uri = URI.parse(ENV['DATABASE_URL'])
 
-Que.connection = ConnectionPool.new :size => 10 do
+Que_0_14_3.connection = ConnectionPool.new :size => 10 do
   PG::Connection.open :host     => uri.host,
                       :user     => uri.user,
                       :password => uri.password,
@@ -29,7 +29,7 @@ require 'pond'
 
 uri = URI.parse(ENV['DATABASE_URL'])
 
-Que.connection = Pond.new :maximum_size => 10 do
+Que_0_14_3.connection = Pond.new :maximum_size => 10 do
   PG::Connection.open :host     => uri.host,
                       :user     => uri.user,
                       :password => uri.password,
@@ -38,4 +38,4 @@ Que.connection = Pond.new :maximum_size => 10 do
 end
 ```
 
-Please be aware that if you're using ActiveRecord or Sequel to manage your data, there's no reason for you to be using any of these methods - it's less efficient (unnecessary connections will waste memory on your database server) and you lose the reliability benefits of wrapping jobs in the same transactions as the rest of your data. In general, your app should probably be using a connection pool, and Que should probably hook into whatever connection pool you're already using.
+Please be aware that if you're using ActiveRecord or Sequel to manage your data, there's no reason for you to be using any of these methods - it's less efficient (unnecessary connections will waste memory on your database server) and you lose the reliability benefits of wrapping jobs in the same transactions as the rest of your data. In general, your app should probably be using a connection pool, and Que_0_14_3 should probably hook into whatever connection pool you're already using.

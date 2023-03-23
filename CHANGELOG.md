@@ -6,9 +6,9 @@
 
 ### 0.14.2 (2018-01-05)
 
-*   Deprecate the Que.disable_prepared_statements= accessors.
+*   Deprecate the Que_0_14_3.disable_prepared_statements= accessors.
 
-*   Add Que.use_prepared_statements= configuration accessors.
+*   Add Que_0_14_3.use_prepared_statements= configuration accessors.
 
 *   Update the generated Rails migration to declare a version. (NARKOZ)
 
@@ -76,19 +76,19 @@
 
 ### 0.11.1 (2015-09-04)
 
-*   The `rake que:work` rake task that was specific to Rails has been deprecated and will be removed in Que 1.0. A deprecation warning will display when it is run.
+*   The `rake que:work` rake task that was specific to Rails has been deprecated and will be removed in Que_0_14_3 1.0. A deprecation warning will display when it is run.
 
 ### 0.11.0 (2015-09-04)
 
 *   A command-line program has been added that can be used to work jobs in a more flexible manner than the previous rake task. Run `que -h` for more information.
 
-*   The worker pool will no longer start automatically in the same process when running the rails server - this behavior was too prone to breakage. If you'd like to recreate the old behavior, you can manually set `Que.mode = :async` in your app whenever conditions are appropriate (classes have loaded, a database connection has been established, and the process will not be forking).
+*   The worker pool will no longer start automatically in the same process when running the rails server - this behavior was too prone to breakage. If you'd like to recreate the old behavior, you can manually set `Que_0_14_3.mode = :async` in your app whenever conditions are appropriate (classes have loaded, a database connection has been established, and the process will not be forking).
 
-*   Add a Que.disable_prepared_transactions= configuration option, to make it easier to use tools like pgbouncer. (#110)
+*   Add a Que_0_14_3.disable_prepared_transactions= configuration option, to make it easier to use tools like pgbouncer. (#110)
 
-*   Add a Que.json_converter= option, to configure how arguments are transformed before being passed to the job. By default this is set to the `Que::INDIFFERENTIATOR` proc, which provides simple indifferent access (via strings or symbols) to args hashes. If you're using Rails, the default is to convert the args to HashWithIndifferentAccess instead. You can also pass it the Que::SYMBOLIZER proc, which will destructively convert all keys in the args hash to symbols (this will probably be the default in Que 1.0). If you want to define a custom converter, you will usually want to pass this option a proc, and you'll probably want it to be recursive. See the implementations of Que::INDIFFERENTIATOR and Que::SYMBOLIZER for examples. (#113)
+*   Add a Que_0_14_3.json_converter= option, to configure how arguments are transformed before being passed to the job. By default this is set to the `Que_0_14_3::INDIFFERENTIATOR` proc, which provides simple indifferent access (via strings or symbols) to args hashes. If you're using Rails, the default is to convert the args to HashWithIndifferentAccess instead. You can also pass it the Que_0_14_3::SYMBOLIZER proc, which will destructively convert all keys in the args hash to symbols (this will probably be the default in Que_0_14_3 1.0). If you want to define a custom converter, you will usually want to pass this option a proc, and you'll probably want it to be recursive. See the implementations of Que_0_14_3::INDIFFERENTIATOR and Que_0_14_3::SYMBOLIZER for examples. (#113)
 
-*   When using Que with ActiveRecord, workers now call `ActiveRecord::Base.clear_active_connections!` between jobs. This cleans up connections that ActiveRecord leaks when it is used to access mutliple databases. (#116)
+*   When using Que_0_14_3 with ActiveRecord, workers now call `ActiveRecord::Base.clear_active_connections!` between jobs. This cleans up connections that ActiveRecord leaks when it is used to access mutliple databases. (#116)
 
 *   If it exists, use String#constantize to constantize job classes, since ActiveSupport's constantize method behaves better with Rails' autoloading. (#115, #120) (joevandyk)
 
@@ -96,9 +96,9 @@
 
 *   When working jobs via the rake task, Rails applications are now eager-loaded if present, to avoid problems with multithreading and autoloading. (#96) (hmarr)
 
-*   The que:work rake task now uses whatever logger Que is configured to use normally, rather than forcing the use of STDOUT. (#95)
+*   The que:work rake task now uses whatever logger Que_0_14_3 is configured to use normally, rather than forcing the use of STDOUT. (#95)
 
-*   Add Que.transaction() helper method, to aid in transaction management in migrations or when the user's ORM doesn't provide one. (#81)
+*   Add Que_0_14_3.transaction() helper method, to aid in transaction management in migrations or when the user's ORM doesn't provide one. (#81)
 
 ### 0.9.2 (2015-02-05)
 
@@ -124,9 +124,9 @@
 
 ### 0.8.0 (2014-07-12)
 
-*   A callable can now be set as the logger, like `Que.logger = proc { MyLogger.new }`. Que uses this in its Railtie for cleaner initialization, but it is also available for public use.
+*   A callable can now be set as the logger, like `Que_0_14_3.logger = proc { MyLogger.new }`. Que_0_14_3 uses this in its Railtie for cleaner initialization, but it is also available for public use.
 
-*   `Que.mode=` and `Que.worker_count=` now function independently. That is, setting the worker_count to a nonzero number no longer sets mode = :async (triggering the pool to start working jobs), and setting it to zero no longer sets mode = :off. Similarly, setting the mode to :async no longer sets the worker_count to 4 from 0, and setting the mode to :off no longer sets the worker_count to 0. This behavior was changed because it was interfering with configuration during initialization of Rails applications, and because it was unexpected. (#47)
+*   `Que_0_14_3.mode=` and `Que_0_14_3.worker_count=` now function independently. That is, setting the worker_count to a nonzero number no longer sets mode = :async (triggering the pool to start working jobs), and setting it to zero no longer sets mode = :off. Similarly, setting the mode to :async no longer sets the worker_count to 4 from 0, and setting the mode to :off no longer sets the worker_count to 0. This behavior was changed because it was interfering with configuration during initialization of Rails applications, and because it was unexpected. (#47)
 
 *   Fixed a similar bug wherein setting a wake_interval during application startup would break worker awakening after the process was forked.
 
@@ -160,7 +160,7 @@
 
 *   You can now run a job's logic directly (without enqueueing it) like `MyJob.run(arg1, arg2, :other_arg => arg3)`. This is useful when a job class encapsulates logic that you want to invoke without involving the entire queue.
 
-*   You can now check the current version of Que's database schema with `Que.db_version`.
+*   You can now check the current version of Que_0_14_3's database schema with `Que_0_14_3.db_version`.
 
 *   The method for enqueuing a job has been renamed from `MyJob.queue` to `MyJob.enqueue`, since we were beginning to use the word 'queue' in a LOT of places. `MyJob.queue` still works, but it may be removed at some point.
 
@@ -176,21 +176,21 @@
 
 ### 0.5.0 (2014-01-14)
 
-*   When running a worker pool inside your web process on ActiveRecord, Que will now wake a worker once a transaction containing a queued job is committed. (joevandyk, chanks)
+*   When running a worker pool inside your web process on ActiveRecord, Que_0_14_3 will now wake a worker once a transaction containing a queued job is committed. (joevandyk, chanks)
 
 *   The `que:work` rake task now has a default wake_interval of 0.1 seconds, since it relies exclusively on polling to pick up jobs. You can set a QUE_WAKE_INTERVAL environment variable to change this. The environment variable to set a size for the worker pool in the rake task has also been changed from WORKER_COUNT to QUE_WORKER_COUNT.
 
-*   Officially support Ruby 1.9.3. Note that due to the Thread#kill problems (see "Remove Que.stop!" below) there's a danger of data corruption when running under 1.9, though.
+*   Officially support Ruby 1.9.3. Note that due to the Thread#kill problems (see "Remove Que_0_14_3.stop!" below) there's a danger of data corruption when running under 1.9, though.
 
 *   The default priority for jobs is now 100 (it was 1 before). Like always (and like delayed_job), a lower priority means it's more important. You can migrate the schema version to 2 to set the new default value on the que_jobs table, though it's only necessary if you're doing your own INSERTs - if you use `MyJob.queue`, it's already taken care of.
 
-*   Added a migration system to make it easier to change the schema when updating Que. You can now write, for example, `Que.migrate!(:version => 2)` in your migrations. Migrations are run transactionally.
+*   Added a migration system to make it easier to change the schema when updating Que_0_14_3. You can now write, for example, `Que_0_14_3.migrate!(:version => 2)` in your migrations. Migrations are run transactionally.
 
-*   The logging format has changed to be more easily machine-readable. You can also now customize the logging format by assigning a callable to Que.log_formatter=. See the new doc on [logging](https://github.com/chanks/que/blob/master/docs/logging.md)) for details. The default logger level is INFO - for less critical information (such as when no jobs were found to be available or when a job-lock race condition has been detected and avoided) you can set the QUE_LOG_LEVEL environment variable to DEBUG.
+*   The logging format has changed to be more easily machine-readable. You can also now customize the logging format by assigning a callable to Que_0_14_3.log_formatter=. See the new doc on [logging](https://github.com/chanks/que/blob/master/docs/logging.md)) for details. The default logger level is INFO - for less critical information (such as when no jobs were found to be available or when a job-lock race condition has been detected and avoided) you can set the QUE_LOG_LEVEL environment variable to DEBUG.
 
-*   MultiJson is now a soft dependency. Que will use it if it is available, but it is not required.
+*   MultiJson is now a soft dependency. Que_0_14_3 will use it if it is available, but it is not required.
 
-*   Remove Que.stop!.
+*   Remove Que_0_14_3.stop!.
 
     Using Thread#raise to kill workers is a bad idea - the results are unpredictable and nearly impossible to spec reliably. Its purpose was to prevent premature commits in ActiveRecord/Sequel when a thread is killed during shutdown, but it's possible to detect that situation on Ruby 2.0+, so this is really better handled by the ORMs directly. See the pull requests for [Sequel](https://github.com/jeremyevans/sequel/pull/752) and [ActiveRecord](https://github.com/rails/rails/pull/13656).
 
@@ -198,31 +198,31 @@
 
 ### 0.4.0 (2014-01-05)
 
-*   Que.wake_all! was added, as a simple way to wake up all workers in the pool.
+*   Que_0_14_3.wake_all! was added, as a simple way to wake up all workers in the pool.
 
-*   Que.sleep_period was renamed to the more descriptive Que.wake_interval.
+*   Que_0_14_3.sleep_period was renamed to the more descriptive Que_0_14_3.wake_interval.
 
-*   When queueing a job, Que will wait until the current transaction commits and then wake a background worker, if possible. This allows newly queued jobs to be started immediately instead of waiting for a worker to wake up and poll, which may be up to `Que.wake_interval` seconds.
+*   When queueing a job, Que_0_14_3 will wait until the current transaction commits and then wake a background worker, if possible. This allows newly queued jobs to be started immediately instead of waiting for a worker to wake up and poll, which may be up to `Que_0_14_3.wake_interval` seconds.
 
-    This feature currently only works with Sequel, since there doesn't seem to be a clean way to do it on ActiveRecord (if anyone can figure one out, please let me know). Note that if you're using ActiveRecord, you can always manually trigger a single worker to wake up and check for work by manually calling Que.wake! after your transaction completes.
+    This feature currently only works with Sequel, since there doesn't seem to be a clean way to do it on ActiveRecord (if anyone can figure one out, please let me know). Note that if you're using ActiveRecord, you can always manually trigger a single worker to wake up and check for work by manually calling Que_0_14_3.wake! after your transaction completes.
 
-*   Add Que.job_stats, which queries the database and returns statistics on the different job classes - for each class, how many are queued, how many are currently being worked, what is the highest error_count, and so on.
+*   Add Que_0_14_3.job_stats, which queries the database and returns statistics on the different job classes - for each class, how many are queued, how many are currently being worked, what is the highest error_count, and so on.
 
-*   Add Que.worker_states, which queries the database and returns all currently-locked jobs and info on their workers' connections - what and when was the last query they ran, are they waiting on locks, and so on.
+*   Add Que_0_14_3.worker_states, which queries the database and returns all currently-locked jobs and info on their workers' connections - what and when was the last query they ran, are they waiting on locks, and so on.
 
-*   Have Que only clear advisory locks that it has taken when locking jobs, and not touch any that may have been taken by other code using the same connection.
+*   Have Que_0_14_3 only clear advisory locks that it has taken when locking jobs, and not touch any that may have been taken by other code using the same connection.
 
-*   Add Que.worker_count, to retrieve the current number of workers in the pool of the current process.
+*   Add Que_0_14_3.worker_count, to retrieve the current number of workers in the pool of the current process.
 
 *   Much more internal cleanup.
 
 ### 0.3.0 (2013-12-21)
 
-*   Add Que.stop!, which immediately kills all jobs being worked in the process.
+*   Add Que_0_14_3.stop!, which immediately kills all jobs being worked in the process.
 
     This can leave database connections and such in an unpredictable state, and so should only be used when the process is exiting.
 
-*   Use Que.stop! to safely handle processes that exit while Que is running.
+*   Use Que_0_14_3.stop! to safely handle processes that exit while Que_0_14_3 is running.
 
     Previously, a job that was in the middle of a transaction when the process was killed with SIGINT or SIGTERM would have had its work committed prematurely.
 
