@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 group :development, :test do
   gem 'rake', '< 11.0'
 
-  gem 'activerecord',    :require => nil
+  gem 'activerecord', '~> 5.2.8', :require => nil
   gem 'sequel',          :require => nil
   gem 'connection_pool', :require => nil
   gem 'pond', '~> 0.5.0',:require => nil
