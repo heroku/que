@@ -49,7 +49,7 @@ unless defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
       it "should recreate the prepared statements" do
         expect { Que_0_14_3::Job.enqueue }.not_to raise_error
 
-        DB[:que_jobs].count.should == 2
+        DB[:que_jobs_0_14_3].count.should == 2
       end
 
       it "should work properly even in a transaction" do
@@ -57,7 +57,7 @@ unless defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
           expect { Que_0_14_3::Job.enqueue }.not_to raise_error
         end
 
-        DB[:que_jobs].count.should == 2
+        DB[:que_jobs_0_14_3].count.should == 2
       end
 
       it "should log this extraordinary event" do
@@ -97,10 +97,10 @@ unless defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
       sleep_until { Que_0_14_3::Worker.workers.all? &:sleeping? }
 
       Que_0_14_3::Job.enqueue :run_at => 1.minute.ago
-      DB[:que_jobs].get(:run_at).should be_within(3).of Time.now - 60
+      DB[:que_jobs_0_14_3].get(:run_at).should be_within(3).of Time.now - 60
 
       Que_0_14_3.wake_interval = 0.005.seconds
-      sleep_until { DB[:que_jobs].empty? }
+      sleep_until { DB[:que_jobs_0_14_3].empty? }
     end
 
     it "should wake up a Worker after queueing a job in async mode, waiting for a transaction to commit if necessary" do
@@ -112,14 +112,14 @@ unless defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
 
       # Wakes a worker immediately when not in a transaction.
       Que_0_14_3::Job.enqueue
-      sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) && DB[:que_jobs].empty? }
+      sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) && DB[:que_jobs_0_14_3].empty? }
 
       # Wakes a worker on transaction commit when in a transaction.
       ActiveRecord::Base.transaction do
         Que_0_14_3::Job.enqueue
         Que_0_14_3::Worker.workers.each { |worker| worker.should be_sleeping }
       end
-      sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) && DB[:que_jobs].empty? }
+      sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) && DB[:que_jobs_0_14_3].empty? }
 
       # Does nothing when in a nested transaction.
       # TODO: ideally this would wake after the outer transaction commits
@@ -142,7 +142,7 @@ unless defined?(RUBY_ENGINE) && RUBY_ENGINE == 'jruby'
         Que_0_14_3::Job.enqueue
         raise ActiveRecord::Rollback, "Call tech support!"
       end
-      DB[:que_jobs].count.should be 0
+      DB[:que_jobs_0_14_3].count.should be 0
     end
 
     it "should be able to tell when it's in an ActiveRecord transaction" do

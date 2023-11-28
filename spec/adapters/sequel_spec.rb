@@ -35,13 +35,13 @@ describe "Que_0_14_3 using the Sequel adapter" do
 
     # Wakes a worker immediately when not in a transaction.
     Que_0_14_3::Job.enqueue
-    sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) && DB[:que_jobs].empty? }
+    sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) && DB[:que_jobs_0_14_3].empty? }
 
     SEQUEL_ADAPTER_DB.transaction do
       Que_0_14_3::Job.enqueue
       Que_0_14_3::Worker.workers.each { |worker| worker.should be_sleeping }
     end
-    sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) && DB[:que_jobs].empty? }
+    sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) && DB[:que_jobs_0_14_3].empty? }
 
     # Do nothing when queueing with a specific :run_at.
     BlockJob.enqueue :run_at => Time.now

@@ -69,7 +69,7 @@ module Que_0_14_3
     end
 
     def clear!
-      execute "DELETE FROM que_jobs"
+      execute "DELETE FROM que_jobs_0_14_3"
     end
 
     def job_stats

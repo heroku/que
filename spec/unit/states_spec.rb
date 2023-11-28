@@ -17,7 +17,7 @@ describe Que_0_14_3, '.worker_states' do
 
     # Ensure that the portion of the SQL query that accounts for bigint
     # job_ids functions correctly.
-    DB[:que_jobs].update(:job_id => 2**33)
+    DB[:que_jobs_0_14_3].update(:job_id => 2**33)
 
     t = Thread.new { Que_0_14_3::Job.work }
     $q1.pop

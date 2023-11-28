@@ -117,15 +117,15 @@ Command.enqueue "Kernel.puts", "hello world"
 
 ### Retaining Finished Jobs
 
-Que_0_14_3 deletes jobs from the queue as they are worked, in order to keep the `que_jobs` table and index small and efficient. If you have a need to hold onto finished jobs, the recommended way to do this is to add a second table to hold them, and then insert them there as they are deleted from the queue. You can use Ruby's inheritance mechanics to do this cleanly:
+Que_0_14_3 deletes jobs from the queue as they are worked, in order to keep the `que_jobs_0_14_3` table and index small and efficient. If you have a need to hold onto finished jobs, the recommended way to do this is to add a second table to hold them, and then insert them there as they are deleted from the queue. You can use Ruby's inheritance mechanics to do this cleanly:
 
 ```ruby
-Que_0_14_3.execute "CREATE TABLE finished_jobs AS SELECT * FROM que_jobs LIMIT 0"
+Que_0_14_3.execute "CREATE TABLE finished_jobs AS SELECT * FROM que_jobs_0_14_3 LIMIT 0"
 # Or, better, use a proper CREATE TABLE with not-null constraints, and add whatever indexes you like.
 
 class MyJobClass < Que_0_14_3::Job
   def destroy
-    Que_0_14_3.execute "INSERT INTO finished_jobs SELECT * FROM que_jobs WHERE queue = $1::text AND priority = $2::integer AND run_at = $3::timestamptz AND job_id = $4::bigint", @attrs.values_at(:queue, :priority, :run_at, :job_id)
+    Que_0_14_3.execute "INSERT INTO finished_jobs SELECT * FROM que_jobs_0_14_3 WHERE queue = $1::text AND priority = $2::integer AND run_at = $3::timestamptz AND job_id = $4::bigint", @attrs.values_at(:queue, :priority, :run_at, :job_id)
     super
   end
 end
@@ -134,7 +134,7 @@ end
 Then just have your job classes inherit from MyJobClass instead of Que_0_14_3::Job. If you need to query the jobs table and you want to include both finished and unfinished jobs, you might use:
 
 ```ruby
-Que_0_14_3.execute "CREATE VIEW all_jobs AS SELECT * FROM que_jobs UNION ALL SELECT * FROM finished_jobs"
+Que_0_14_3.execute "CREATE VIEW all_jobs AS SELECT * FROM que_jobs_0_14_3 UNION ALL SELECT * FROM finished_jobs"
 Que_0_14_3.execute "SELECT * FROM all_jobs"
 ```
 
@@ -151,7 +151,7 @@ AS $$
   END;
 $$;
 
-CREATE TRIGGER keep_all_my_old_jobs BEFORE DELETE ON que_jobs FOR EACH ROW EXECUTE PROCEDURE please_save_my_job();
+CREATE TRIGGER keep_all_my_old_jobs BEFORE DELETE ON que_jobs_0_14_3 FOR EACH ROW EXECUTE PROCEDURE please_save_my_job();
 ```
 
 ### Not Retrying Certain Failed Jobs
@@ -159,7 +159,7 @@ CREATE TRIGGER keep_all_my_old_jobs BEFORE DELETE ON que_jobs FOR EACH ROW EXECU
 By default, when jobs fail, Que_0_14_3 reschedules them to be retried later. If instead you'd like certain jobs to not be retried, and instead move them elsewhere to be examined later, you can accomplish that easily. First, we need a place for the failed jobs to be stored:
 
 ```sql
-CREATE TABLE failed_jobs AS SELECT * FROM que_jobs LIMIT 0
+CREATE TABLE failed_jobs AS SELECT * FROM que_jobs_0_14_3 LIMIT 0
 ```
 
 Then, create a module that you can use in the jobs you don't want to retry:
@@ -172,7 +172,7 @@ module SkipRetries
     sql = <<-SQL
       WITH failed AS (
         DELETE
-        FROM   que_jobs
+        FROM   que_jobs_0_14_3
         WHERE  queue    = $1::text
         AND    priority = $2::smallint
         AND    run_at   = $3::timestamptz

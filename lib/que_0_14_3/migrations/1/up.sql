@@ -1,4 +1,4 @@
-CREATE TABLE que_jobs
+CREATE TABLE que_jobs_0_14_3
 (
   priority    integer     NOT NULL DEFAULT 1,
   run_at      timestamptz NOT NULL DEFAULT now(),
@@ -8,5 +8,5 @@ CREATE TABLE que_jobs
   error_count integer     NOT NULL DEFAULT 0,
   last_error  text,
 
-  CONSTRAINT que_jobs_pkey PRIMARY KEY (priority, run_at, job_id)
+  CONSTRAINT que_jobs_0_14_3_pkey PRIMARY KEY (priority, run_at, job_id)
 );

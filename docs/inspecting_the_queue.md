@@ -69,7 +69,7 @@ In this case, there is only one worker currently working the queue. The first se
 If you want to query the jobs table yourself to see what's been queued or to check the state of various jobs, you can always use Que_0_14_3 to execute whatever SQL you want:
 
 ```ruby
-Que_0_14_3.execute("select count(*) from que_jobs") #=> [{"count"=>"492"}]
+Que_0_14_3.execute("select count(*) from que_jobs_0_14_3") #=> [{"count"=>"492"}]
 ```
 
 If you want to use ActiveRecord's features when querying, you can define your own model around Que_0_14_3's job table:
@@ -81,7 +81,7 @@ end
 # Or:
 
 class MyJob < ActiveRecord::Base
-  self.table_name = :que_jobs
+  self.table_name = :que_jobs_0_14_3
 end
 ```
 
@@ -95,7 +95,7 @@ end
 
 # Or:
 
-class MyJob < Sequel::Model(:que_jobs)
+class MyJob < Sequel::Model(:que_jobs_0_14_3)
 end
 ```
 
@@ -110,5 +110,5 @@ job.save
 Or, you can just use Sequel's dataset methods:
 
 ```ruby
-DB[:que_jobs].where{priority > 3}.all
+DB[:que_jobs_0_14_3].where{priority > 3}.all
 ```

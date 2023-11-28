@@ -7,11 +7,11 @@ describe Que_0_14_3::Worker do
     begin
       Que_0_14_3::Job.enqueue
       Que_0_14_3::Job.enqueue
-      DB[:que_jobs].count.should be 2
+      DB[:que_jobs_0_14_3].count.should be 2
 
       @worker = Que_0_14_3::Worker.new
       sleep_until { @worker.sleeping? }
-      DB[:que_jobs].count.should be 0
+      DB[:que_jobs_0_14_3].count.should be 0
 
       $logger.messages.map{|m| JSON.load(m)['event']}.should == %w(job_worked job_worked job_unavailable)
 
@@ -32,7 +32,7 @@ describe Que_0_14_3::Worker do
 
       @worker = Que_0_14_3::Worker.new
       sleep_until { @worker.sleeping? }
-      DB[:que_jobs].count.should be 1
+      DB[:que_jobs_0_14_3].count.should be 1
 
       $logger.messages.map{|m| JSON.load(m)['event']}.should == %w(job_worked job_unavailable)
 
@@ -55,7 +55,7 @@ describe Que_0_14_3::Worker do
 
       @worker = Que_0_14_3::Worker.new(:my_queue)
       sleep_until { @worker.sleeping? }
-      DB[:que_jobs].count.should be 1
+      DB[:que_jobs_0_14_3].count.should be 1
 
       $logger.messages.map{|m| JSON.load(m)['event']}.should == %w(job_worked job_unavailable)
 
@@ -78,11 +78,11 @@ describe Que_0_14_3::Worker do
 
       Que_0_14_3::Job.enqueue
       Que_0_14_3::Job.enqueue
-      DB[:que_jobs].count.should be 2
+      DB[:que_jobs_0_14_3].count.should be 2
 
       @worker.wake!.should be true
       sleep_until { @worker.sleeping? }
-      DB[:que_jobs].count.should be 0
+      DB[:que_jobs_0_14_3].count.should be 0
     ensure
       if @worker
         @worker.stop
@@ -97,7 +97,7 @@ describe Que_0_14_3::Worker do
       @worker = Que_0_14_3::Worker.new
 
       $q1.pop
-      DB[:que_jobs].count.should be 1
+      DB[:que_jobs_0_14_3].count.should be 1
       @worker.wake!.should be nil
       $q2.push nil
     ensure
@@ -117,8 +117,8 @@ describe Que_0_14_3::Worker do
 
       sleep_until { @worker.sleeping? }
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:job_class].should == 'ErrorJob'
       job[:run_at].should be_within(3).of Time.now + 4
 
@@ -139,7 +139,7 @@ describe Que_0_14_3::Worker do
     begin
       BlockJob.enqueue :priority => 1
       Que_0_14_3::Job.enqueue :priority => 5
-      DB[:que_jobs].count.should be 2
+      DB[:que_jobs_0_14_3].count.should be 2
 
       @worker = Que_0_14_3::Worker.new
 
@@ -149,8 +149,8 @@ describe Que_0_14_3::Worker do
 
       @worker.wait_until_stopped
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:job_class].should == 'Que_0_14_3::Job'
     end
   end

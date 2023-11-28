@@ -8,7 +8,7 @@ describe Que_0_14_3::Job, '.run' do
     result.should be_an_instance_of ArgsJob
     result.attrs[:args].should == [1, 'two', {:three => 3}]
 
-    DB[:que_jobs].count.should be 0
+    DB[:que_jobs_0_14_3].count.should be 0
     $passed_args.should == [1, 'two', {:three => 3}]
   end
 end

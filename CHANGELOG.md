@@ -182,7 +182,7 @@
 
 *   Officially support Ruby 1.9.3. Note that due to the Thread#kill problems (see "Remove Que_0_14_3.stop!" below) there's a danger of data corruption when running under 1.9, though.
 
-*   The default priority for jobs is now 100 (it was 1 before). Like always (and like delayed_job), a lower priority means it's more important. You can migrate the schema version to 2 to set the new default value on the que_jobs table, though it's only necessary if you're doing your own INSERTs - if you use `MyJob.queue`, it's already taken care of.
+*   The default priority for jobs is now 100 (it was 1 before). Like always (and like delayed_job), a lower priority means it's more important. You can migrate the schema version to 2 to set the new default value on the que_jobs_0_14_3 table, though it's only necessary if you're doing your own INSERTs - if you use `MyJob.queue`, it's already taken care of.
 
 *   Added a migration system to make it easier to change the schema when updating Que_0_14_3. You can now write, for example, `Que_0_14_3.migrate!(:version => 2)` in your migrations. Migrations are run transactionally.
 

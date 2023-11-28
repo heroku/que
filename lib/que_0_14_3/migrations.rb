@@ -36,7 +36,7 @@ module Que_0_14_3
           SELECT relname, description
           FROM pg_class
           LEFT JOIN pg_description ON pg_description.objoid = pg_class.oid
-          WHERE relname = 'que_jobs'
+          WHERE relname = 'que_jobs_0_14_3'
         SQL
 
         if result.none?
@@ -52,7 +52,7 @@ module Que_0_14_3
 
       def set_db_version(version)
         i = version.to_i
-        Que_0_14_3.execute "COMMENT ON TABLE que_jobs IS '#{i}'" unless i.zero?
+        Que_0_14_3.execute "COMMENT ON TABLE que_jobs_0_14_3 IS '#{i}'" unless i.zero?
       end
     end
   end

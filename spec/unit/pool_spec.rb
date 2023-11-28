@@ -60,7 +60,7 @@ describe "Managing the Worker pool" do
 
         ArgsJob.enqueue(5, :testing => "synchronous").should be_an_instance_of ArgsJob
         $passed_args.should == [5, {:testing => "synchronous"}]
-        DB[:que_jobs].count.should be 0
+        DB[:que_jobs_0_14_3].count.should be 0
       end
 
       it "should work fine with enqueuing jobs without a DB connection" do
@@ -75,7 +75,7 @@ describe "Managing the Worker pool" do
         Que_0_14_3.mode = :sync
 
         ArgsJob.enqueue(5, :testing => "synchronous", :run_at => Time.now + 60)
-        DB[:que_jobs].select_map(:job_class).should == ["ArgsJob"]
+        DB[:que_jobs_0_14_3].select_map(:job_class).should == ["ArgsJob"]
       end
     end
 
@@ -92,7 +92,7 @@ describe "Managing the Worker pool" do
         Que_0_14_3.worker_count = 5
         Que_0_14_3.mode = :async
         sleep_until { Que_0_14_3::Worker.workers.all? &:sleeping? }
-        DB[:que_jobs].count.should == 0
+        DB[:que_jobs_0_14_3].count.should == 0
         Que_0_14_3::Worker.workers.map{|w| [w.state, w.thread.status]}.should == [[:sleeping, 'sleep']] * 5
       end
 
@@ -102,7 +102,7 @@ describe "Managing the Worker pool" do
         sleep_until { Que_0_14_3::Worker.workers.all? &:sleeping? }
         Que_0_14_3.wake_interval = 0.01 # 10 ms
         Que_0_14_3::Job.enqueue
-        sleep_until { DB[:que_jobs].count == 0 }
+        sleep_until { DB[:que_jobs_0_14_3].count == 0 }
       end
 
       it "should work jobs in the queue defined by the Que_0_14_3.queue_name config option" do
@@ -116,9 +116,9 @@ describe "Managing the Worker pool" do
           Que_0_14_3.worker_count = 2
 
           sleep_until { Que_0_14_3::Worker.workers.all? &:sleeping? }
-          DB[:que_jobs].count.should be 1
+          DB[:que_jobs_0_14_3].count.should be 1
 
-          job = DB[:que_jobs].first
+          job = DB[:que_jobs_0_14_3].first
           job[:queue].should == ''
           job[:args].should == '[1]'
         ensure
@@ -186,7 +186,7 @@ describe "Managing the Worker pool" do
         Que_0_14_3.worker_count = 4
         sleep_until { Que_0_14_3::Worker.workers.all?(&:sleeping?) }
         Que_0_14_3::Worker.workers.map{|w| [w.state, w.thread.status]}.should == [[:sleeping, 'sleep']] * 4
-        DB[:que_jobs].count.should == 0
+        DB[:que_jobs_0_14_3].count.should == 0
       end
 
       it "should stop hitting the DB when transitioning to zero" do
@@ -285,11 +285,11 @@ describe "Managing the Worker pool" do
       $q1.pop
       Que_0_14_3::Worker.workers.first.should be_working
       Que_0_14_3::Worker.workers[1..3].each { |w| w.should be_sleeping }
-      DB[:que_jobs].count.should be 1
+      DB[:que_jobs_0_14_3].count.should be 1
       $q2.push nil
 
       sleep_until { Que_0_14_3::Worker.workers.all? &:sleeping? }
-      DB[:que_jobs].count.should be 0
+      DB[:que_jobs_0_14_3].count.should be 0
     end
 
     it "when mode = :async and worker_count > 0 should be thread-safe" do
@@ -351,7 +351,7 @@ describe "Managing the Worker pool" do
       4.times { $q2.push nil }
 
       sleep_until { Que_0_14_3::Worker.workers.all? &:sleeping? }
-      DB[:que_jobs].count.should be 0
+      DB[:que_jobs_0_14_3].count.should be 0
     end if QUE_ADAPTERS[:pond]
 
     it "when mode = :async and worker_count > 0 should be thread-safe" do

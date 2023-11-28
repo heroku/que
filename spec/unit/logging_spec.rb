@@ -25,7 +25,7 @@ describe "Logging" do
       worker = Que_0_14_3::Worker.new
       sleep_until { worker.sleeping? }
 
-      DB[:que_jobs].should be_empty
+      DB[:que_jobs_0_14_3].should be_empty
 
       worker.stop
       worker.wait_until_stopped
@@ -46,7 +46,7 @@ describe "Logging" do
       worker = Que_0_14_3::Worker.new
       sleep_until { worker.sleeping? }
 
-      DB[:que_jobs].should be_empty
+      DB[:que_jobs_0_14_3].should be_empty
 
       worker.stop
       worker.wait_until_stopped

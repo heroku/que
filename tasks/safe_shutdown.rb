@@ -22,9 +22,9 @@ task :safe_shutdown do
   url = ENV['DATABASE_URL'] || 'postgres://postgres:@localhost/que-test'
   DB = Sequel.connect(url)
 
-  if DB.table_exists?(:que_jobs)
-    puts "Uh-oh! Previous shutdown wasn't clean!" if DB[:que_jobs].where(:job_id => 0).count > 0
-    DB.drop_table :que_jobs
+  if DB.table_exists?(:que_jobs_0_14_3)
+    puts "Uh-oh! Previous shutdown wasn't clean!" if DB[:que_jobs_0_14_3].where(:job_id => 0).count > 0
+    DB.drop_table :que_jobs_0_14_3
   end
 
   Que_0_14_3.connection = DB
@@ -35,7 +35,7 @@ task :safe_shutdown do
   class SafeJob < Que_0_14_3::Job
     def run
       DB.transaction do
-        DB[:que_jobs].insert(:job_id => 0, :job_class => 'Que_0_14_3::Job')
+        DB[:que_jobs_0_14_3].insert(:job_id => 0, :job_class => 'Que_0_14_3::Job')
         $queue.push nil
         sleep
       end

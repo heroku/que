@@ -50,8 +50,8 @@ describe "Customizing Que_0_14_3" do
       $time_range.end.to_f.round(6).should be_within(0.000001).of t + 1.5
       $time_range.exclude_end?.should be true
 
-      DB[:que_jobs].get(:run_at).to_f.round(6).should be_within(0.000001).of(t + 3.0)
-      args = JSON.parse(DB[:que_jobs].get(:args)).first
+      DB[:que_jobs_0_14_3].get(:run_at).to_f.round(6).should be_within(0.000001).of(t + 3.0)
+      args = JSON.parse(DB[:que_jobs_0_14_3].get(:args)).first
       args.keys.should == ['arg', 'start_at', 'end_at']
       args['arg'].should == 4
       args['start_at'].should be_within(0.000001).of(t + 1.5)
@@ -131,7 +131,7 @@ describe "Customizing Que_0_14_3" do
 
   describe "retaining deleted jobs" do
     before do
-      Que_0_14_3.execute "CREATE TABLE finished_jobs AS SELECT * FROM que_jobs LIMIT 0"
+      Que_0_14_3.execute "CREATE TABLE finished_jobs AS SELECT * FROM que_jobs_0_14_3 LIMIT 0"
     end
 
     after do
@@ -141,7 +141,7 @@ describe "Customizing Que_0_14_3" do
     it "with a Ruby override" do
       class MyJobClass < Que_0_14_3::Job
         def destroy
-          Que_0_14_3.execute "INSERT INTO finished_jobs SELECT * FROM que_jobs WHERE queue = $1::text AND priority = $2::integer AND run_at = $3::timestamptz AND job_id = $4::bigint", @attrs.values_at(:queue, :priority, :run_at, :job_id)
+          Que_0_14_3.execute "INSERT INTO finished_jobs SELECT * FROM que_jobs_0_14_3 WHERE queue = $1::text AND priority = $2::integer AND run_at = $3::timestamptz AND job_id = $4::bigint", @attrs.values_at(:queue, :priority, :run_at, :job_id)
           super
         end
       end
@@ -172,7 +172,7 @@ describe "Customizing Que_0_14_3" do
           $$;
         SQL
 
-        Que_0_14_3.execute "CREATE TRIGGER keep_all_my_old_jobs BEFORE DELETE ON que_jobs FOR EACH ROW EXECUTE PROCEDURE please_save_my_job();"
+        Que_0_14_3.execute "CREATE TRIGGER keep_all_my_old_jobs BEFORE DELETE ON que_jobs_0_14_3 FOR EACH ROW EXECUTE PROCEDURE please_save_my_job();"
 
         Que_0_14_3::Job.enqueue 2, 'arg2', :priority => 45
         Que_0_14_3::Job.work
@@ -182,7 +182,7 @@ describe "Customizing Que_0_14_3" do
         job[:priority].should == 45
         JSON.load(job[:args]).should == [2, 'arg2']
       ensure
-        DB.drop_trigger :que_jobs, :keep_all_my_old_jobs, :if_exists => true
+        DB.drop_trigger :que_jobs_0_14_3, :keep_all_my_old_jobs, :if_exists => true
         DB.drop_function :please_save_my_job, :if_exists => true
       end
     end
@@ -190,7 +190,7 @@ describe "Customizing Que_0_14_3" do
 
   describe "not retrying specific failed jobs" do
     before do
-      Que_0_14_3.execute "CREATE TABLE failed_jobs AS SELECT * FROM que_jobs LIMIT 0"
+      Que_0_14_3.execute "CREATE TABLE failed_jobs AS SELECT * FROM que_jobs_0_14_3 LIMIT 0"
     end
 
     after do
@@ -206,7 +206,7 @@ describe "Customizing Que_0_14_3" do
             sql = <<-SQL
               WITH failed AS (
                 DELETE
-                FROM   que_jobs
+                FROM   que_jobs_0_14_3
                 WHERE  queue    = $1::text
                 AND    priority = $2::smallint
                 AND    run_at   = $3::timestamptz
@@ -237,7 +237,7 @@ describe "Customizing Que_0_14_3" do
 
         $retry_job_args.should == [1, 'arg1', {'other_arg' => 'blah'}]
 
-        DB[:que_jobs].count.should == 0
+        DB[:que_jobs_0_14_3].count.should == 0
         DB[:failed_jobs].count.should == 1
 
         job = DB[:failed_jobs].first

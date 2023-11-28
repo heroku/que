@@ -59,7 +59,7 @@ end
 
 
 # Reset the table to the most up-to-date version.
-DB.drop_table? :que_jobs
+DB.drop_table? :que_jobs_0_14_3
 Que_0_14_3::Migrations.migrate!
 
 
@@ -119,7 +119,7 @@ RSpec.configure do |config|
     Que_0_14_3.mode = :off
     Que_0_14_3.wake_interval = nil
 
-    DB[:que_jobs].delete
+    DB[:que_jobs_0_14_3].delete
 
     # A bit of lint: make sure that no advisory locks are left open.
     unless DB[:pg_locks].where(:locktype => 'advisory').empty?

@@ -14,11 +14,11 @@ module Que_0_14_3
     # jobs:
     #
     #   SELECT (j).*, pg_try_advisory_lock((j).job_id) AS locked
-    #   FROM que_jobs AS j;
+    #   FROM que_jobs_0_14_3 AS j;
     #
     # The CTE will initially produce an "anchor" from the non-recursive term
     # (i.e. before the `UNION`), and then use it as the contents of the
-    # working table as it continues to iterate through `que_jobs` looking for
+    # working table as it continues to iterate through `que_jobs_0_14_3` looking for
     # a lock. The jobs table has a sort on (priority, run_at, job_id) which
     # allows it to walk the jobs table in a stable manner. As noted above, the
     # recursion examines one job at a time so that it only ever acquires a
@@ -47,7 +47,7 @@ module Que_0_14_3
         SELECT (j).*, pg_try_advisory_lock((j).job_id) AS locked
         FROM (
           SELECT j
-          FROM que_jobs AS j
+          FROM que_jobs_0_14_3 AS j
           WHERE queue = $1::text
           AND run_at <= now()
           ORDER BY priority, run_at, job_id
@@ -58,7 +58,7 @@ module Que_0_14_3
           FROM (
             SELECT (
               SELECT j
-              FROM que_jobs AS j
+              FROM que_jobs_0_14_3 AS j
               WHERE queue = $1::text
               AND run_at <= now()
               AND (priority, run_at, job_id) > (jobs.priority, jobs.run_at, jobs.job_id)
@@ -79,7 +79,7 @@ module Que_0_14_3
 
     :check_job => %{
       SELECT 1 AS one
-      FROM   que_jobs
+      FROM   que_jobs_0_14_3
       WHERE  queue    = $1::text
       AND    priority = $2::smallint
       AND    run_at   = $3::timestamptz
@@ -87,7 +87,7 @@ module Que_0_14_3
     }.freeze,
 
     :set_error => %{
-      UPDATE que_jobs
+      UPDATE que_jobs_0_14_3
       SET error_count = error_count + 1,
           run_at      = now() + $1::bigint * '1 second'::interval,
           last_error  = $2::text
@@ -98,7 +98,7 @@ module Que_0_14_3
     }.freeze,
 
     :insert_job => %{
-      INSERT INTO que_jobs
+      INSERT INTO que_jobs_0_14_3
       (queue, priority, run_at, job_class, args)
       VALUES
       (coalesce($1, '')::text, coalesce($2, 100)::smallint, coalesce($3, now())::timestamptz, $4::text, coalesce($5, '[]')::json)
@@ -106,7 +106,7 @@ module Que_0_14_3
     }.freeze,
 
     :destroy_job => %{
-      DELETE FROM que_jobs
+      DELETE FROM que_jobs_0_14_3
       WHERE queue    = $1::text
       AND   priority = $2::smallint
       AND   run_at   = $3::timestamptz
@@ -121,7 +121,7 @@ module Que_0_14_3
              sum((error_count > 0)::int) AS count_errored,
              max(error_count)            AS highest_error_count,
              min(run_at)                 AS oldest_run_at
-      FROM que_jobs
+      FROM que_jobs_0_14_3
       LEFT JOIN (
         SELECT (classid::bigint << 32) + objid::bigint AS job_id
         FROM pg_locks
@@ -132,7 +132,7 @@ module Que_0_14_3
     }.freeze,
 
     :worker_states_95 => %{
-      SELECT que_jobs.*,
+      SELECT que_jobs_0_14_3.*,
              pg.pid          AS pg_backend_pid,
              pg.state        AS pg_state,
              pg.state_change AS pg_state_changed_at,
@@ -140,7 +140,7 @@ module Que_0_14_3
              pg.query_start  AS pg_last_query_started_at,
              pg.xact_start   AS pg_transaction_started_at,
              pg.waiting      AS pg_waiting_on_lock
-      FROM que_jobs
+      FROM que_jobs_0_14_3
       JOIN (
         SELECT (classid::bigint << 32) + objid::bigint AS job_id, pg_stat_activity.*
         FROM pg_locks
@@ -150,7 +150,7 @@ module Que_0_14_3
     }.freeze,
 
     :worker_states_96 => %{
-      SELECT que_jobs.*,
+      SELECT que_jobs_0_14_3.*,
              pg.pid                         AS pg_backend_pid,
              pg.state                       AS pg_state,
              pg.state_change                AS pg_state_changed_at,
@@ -158,7 +158,7 @@ module Que_0_14_3
              pg.query_start                 AS pg_last_query_started_at,
              pg.xact_start                  AS pg_transaction_started_at,
              pg.wait_event_type IS NOT NULL AS pg_waiting_on_lock
-      FROM que_jobs
+      FROM que_jobs_0_14_3
       JOIN (
         SELECT (classid::bigint << 32) + objid::bigint AS job_id, pg_stat_activity.*
         FROM pg_locks

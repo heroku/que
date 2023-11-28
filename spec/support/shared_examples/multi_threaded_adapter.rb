@@ -33,14 +33,14 @@ shared_examples "a multi-threaded Que_0_14_3 adapter" do
     $q1.pop
 
     Que_0_14_3::Job.enqueue
-    DB[:que_jobs].count.should be 2
+    DB[:que_jobs_0_14_3].count.should be 2
 
     worker_2 = Que_0_14_3::Worker.new
     sleep_until { worker_2.sleeping? }
-    DB[:que_jobs].count.should be 1
+    DB[:que_jobs_0_14_3].count.should be 1
 
     $q2.push nil
     sleep_until { worker_1.sleeping? }
-    DB[:que_jobs].count.should be 0
+    DB[:que_jobs_0_14_3].count.should be 0
   end
 end

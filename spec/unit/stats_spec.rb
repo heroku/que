@@ -10,7 +10,7 @@ describe Que_0_14_3, '.job_stats' do
     # Have to tweak the job_id to ensure that the portion of the SQL query
     # that accounts for bigint job_ids functions correctly.
     old = Time.now - 3600
-    DB[:que_jobs].where(:job_class => "Que_0_14_3::Job").update(:job_id => 2**33, :error_count => 5, :run_at => old)
+    DB[:que_jobs_0_14_3].where(:job_class => "Que_0_14_3::Job").update(:job_id => 2**33, :error_count => 5, :run_at => old)
 
     Que_0_14_3::Job.enqueue
 

@@ -13,7 +13,7 @@ describe Que_0_14_3::Migrations do
         from pg_attribute a
         join pg_class c on c.oid = a.attrelid
         join pg_attrdef on adrelid = attrelid AND adnum = attnum
-        where relname = 'que_jobs'
+        where relname = 'que_jobs_0_14_3'
         and attname = 'priority'
       SQL
 
@@ -54,31 +54,31 @@ describe Que_0_14_3::Migrations do
   end
 
   it "should be able to honor the initial behavior of Que_0_14_3.drop!" do
-    DB.table_exists?(:que_jobs).should be true
+    DB.table_exists?(:que_jobs_0_14_3).should be true
     Que_0_14_3.drop!
-    DB.table_exists?(:que_jobs).should be false
+    DB.table_exists?(:que_jobs_0_14_3).should be false
 
     # Clean up.
     Que_0_14_3::Migrations.migrate!
-    DB.table_exists?(:que_jobs).should be true
+    DB.table_exists?(:que_jobs_0_14_3).should be true
   end
 
-  it "should be able to recognize a que_jobs table created before the versioning system" do
-    DB.drop_table :que_jobs
-    DB.create_table(:que_jobs){serial :id} # Dummy Table.
+  it "should be able to recognize a que_jobs_0_14_3 table created before the versioning system" do
+    DB.drop_table :que_jobs_0_14_3
+    DB.create_table(:que_jobs_0_14_3){serial :id} # Dummy Table.
     Que_0_14_3::Migrations.db_version.should == 1
-    DB.drop_table(:que_jobs)
+    DB.drop_table(:que_jobs_0_14_3)
     Que_0_14_3::Migrations.migrate!
   end
 
   it "should be able to honor the initial behavior of Que_0_14_3.create!" do
-    DB.drop_table :que_jobs
+    DB.drop_table :que_jobs_0_14_3
     Que_0_14_3.create!
-    DB.table_exists?(:que_jobs).should be true
+    DB.table_exists?(:que_jobs_0_14_3).should be true
     Que_0_14_3::Migrations.db_version.should == 1
 
     # Clean up.
     Que_0_14_3::Migrations.migrate!
-    DB.table_exists?(:que_jobs).should be true
+    DB.table_exists?(:que_jobs_0_14_3).should be true
   end
 end

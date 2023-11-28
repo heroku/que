@@ -5,19 +5,19 @@ require 'spec_helper'
 describe Que_0_14_3::Job, '.work' do
   it "should pass a job's arguments to the run method and delete it from the database" do
     ArgsJob.enqueue 1, 'two', {'three' => 3}
-    DB[:que_jobs].count.should be 1
+    DB[:que_jobs_0_14_3].count.should be 1
 
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
     result[:job][:job_class].should == 'ArgsJob'
 
-    DB[:que_jobs].count.should be 0
+    DB[:que_jobs_0_14_3].count.should be 0
     $passed_args.should == [1, 'two', {'three' => 3}]
   end
 
   it "should respect a custom json converter when processing the job's arguments" do
     ArgsJob.enqueue 1, 'two', {'three' => 3}
-    DB[:que_jobs].count.should be 1
+    DB[:que_jobs_0_14_3].count.should be 1
 
     begin
       Que_0_14_3.json_converter = Que_0_14_3::SYMBOLIZER
@@ -26,7 +26,7 @@ describe Que_0_14_3::Job, '.work' do
       result[:event].should == :job_worked
       result[:job][:job_class].should == 'ArgsJob'
 
-      DB[:que_jobs].count.should be 0
+      DB[:que_jobs_0_14_3].count.should be 0
       $passed_args.should == [1, 'two', {:three => 3}]
     ensure
       Que_0_14_3.json_converter = Que_0_14_3::INDIFFERENTIATOR
@@ -63,15 +63,15 @@ describe Que_0_14_3::Job, '.work' do
   end
 
   it "should make a job's argument hashes indifferently accessible" do
-    DB[:que_jobs].count.should be 0
+    DB[:que_jobs_0_14_3].count.should be 0
     ArgsJob.enqueue 1, 'two', {'array' => [{'number' => 3}]}
-    DB[:que_jobs].count.should be 1
+    DB[:que_jobs_0_14_3].count.should be 1
 
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
     result[:job][:job_class].should == 'ArgsJob'
 
-    DB[:que_jobs].count.should be 0
+    DB[:que_jobs_0_14_3].count.should be 0
 
     $passed_args.last[:array].first[:number].should == 3
   end
@@ -83,12 +83,12 @@ describe Que_0_14_3::Job, '.work' do
   it "should prefer a job with a higher priority" do
     # 1 is highest priority.
     [5, 4, 3, 2, 1, 2, 3, 4, 5].map{|p| Que_0_14_3::Job.enqueue :priority => p}
-    DB[:que_jobs].order(:job_id).select_map(:priority).should == [5, 4, 3, 2, 1, 2, 3, 4, 5]
+    DB[:que_jobs_0_14_3].order(:job_id).select_map(:priority).should == [5, 4, 3, 2, 1, 2, 3, 4, 5]
 
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
     result[:job][:job_class].should == 'Que_0_14_3::Job'
-    DB[:que_jobs].select_map(:priority).should == [5, 4, 3, 2, 2, 3, 4, 5]
+    DB[:que_jobs_0_14_3].select_map(:priority).should == [5, 4, 3, 2, 2, 3, 4, 5]
   end
 
   it "should prefer a job that was scheduled to run longer ago when priorities are equal" do
@@ -96,12 +96,12 @@ describe Que_0_14_3::Job, '.work' do
     Que_0_14_3::Job.enqueue :run_at => Time.now - 60
     Que_0_14_3::Job.enqueue :run_at => Time.now - 30
 
-    recent1, old, recent2 = DB[:que_jobs].order(:job_id).select_map(:run_at)
+    recent1, old, recent2 = DB[:que_jobs_0_14_3].order(:job_id).select_map(:run_at)
 
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
     result[:job][:job_class].should == 'Que_0_14_3::Job'
-    DB[:que_jobs].order_by(:job_id).select_map(:run_at).should == [recent1, recent2]
+    DB[:que_jobs_0_14_3].order_by(:job_id).select_map(:run_at).should == [recent1, recent2]
   end
 
   it "should prefer a job that was queued earlier when priorities and run_ats are equal" do
@@ -110,12 +110,12 @@ describe Que_0_14_3::Job, '.work' do
     Que_0_14_3::Job.enqueue :run_at => run_at
     Que_0_14_3::Job.enqueue :run_at => run_at
 
-    first, second, third = DB[:que_jobs].select_order_map(:job_id)
+    first, second, third = DB[:que_jobs_0_14_3].select_order_map(:job_id)
 
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
     result[:job][:job_class].should == 'Que_0_14_3::Job'
-    DB[:que_jobs].select_order_map(:job_id).should == [second, third]
+    DB[:que_jobs_0_14_3].select_order_map(:job_id).should == [second, third]
   end
 
   it "should only work a job whose scheduled time to run has passed" do
@@ -123,18 +123,18 @@ describe Que_0_14_3::Job, '.work' do
     Que_0_14_3::Job.enqueue :run_at => Time.now - 30
     Que_0_14_3::Job.enqueue :run_at => Time.now + 30
 
-    future1, past, future2 = DB[:que_jobs].order(:job_id).select_map(:run_at)
+    future1, past, future2 = DB[:que_jobs_0_14_3].order(:job_id).select_map(:run_at)
 
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
     result[:job][:job_class].should == 'Que_0_14_3::Job'
     Que_0_14_3::Job.work[:event].should be :job_unavailable
-    DB[:que_jobs].order_by(:job_id).select_map(:run_at).should == [future1, future2]
+    DB[:que_jobs_0_14_3].order_by(:job_id).select_map(:run_at).should == [future1, future2]
   end
 
   it "should lock the job it selects" do
     BlockJob.enqueue
-    id = DB[:que_jobs].get(:job_id)
+    id = DB[:que_jobs_0_14_3].get(:job_id)
     thread = Thread.new { Que_0_14_3::Job.work }
 
     $q1.pop
@@ -148,7 +148,7 @@ describe Que_0_14_3::Job, '.work' do
     Que_0_14_3::Job.enqueue :priority => 2
     Que_0_14_3::Job.enqueue :priority => 1
     Que_0_14_3::Job.enqueue :priority => 3
-    id = DB[:que_jobs].where(:priority => 1).get(:job_id)
+    id = DB[:que_jobs_0_14_3].where(:priority => 1).get(:job_id)
 
     begin
       DB.select{pg_advisory_lock(id)}.single_value
@@ -157,7 +157,7 @@ describe Que_0_14_3::Job, '.work' do
       result[:event].should == :job_worked
       result[:job][:job_class].should == 'Que_0_14_3::Job'
 
-      DB[:que_jobs].order_by(:job_id).select_map(:priority).should == [1, 3]
+      DB[:que_jobs_0_14_3].order_by(:job_id).select_map(:priority).should == [1, 3]
     ensure
       DB.select{pg_advisory_unlock(id)}.single_value
     end
@@ -183,7 +183,7 @@ describe Que_0_14_3::Job, '.work' do
 
     $job_spec_result = []
     SubClassJob.enqueue
-    DB[:que_jobs].select_map(:priority).should == [2]
+    DB[:que_jobs_0_14_3].select_map(:priority).should == [2]
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
     result[:job][:job_class].should == 'SubClassJob'
@@ -191,7 +191,7 @@ describe Que_0_14_3::Job, '.work' do
 
     $job_spec_result = []
     SubSubClassJob.enqueue
-    DB[:que_jobs].select_map(:priority).should == [4]
+    DB[:que_jobs_0_14_3].select_map(:priority).should == [4]
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
     result[:job][:job_class].should == 'SubSubClassJob'
@@ -205,7 +205,7 @@ describe Que_0_14_3::Job, '.work' do
     end
 
     ModuleJobModule::ModuleJob.enqueue
-    DB[:que_jobs].get(:job_class).should == "ModuleJobModule::ModuleJob"
+    DB[:que_jobs_0_14_3].get(:job_class).should == "ModuleJobModule::ModuleJob"
 
     result = Que_0_14_3::Job.work
     result[:event].should == :job_worked
@@ -220,9 +220,9 @@ describe Que_0_14_3::Job, '.work' do
     end
 
     DestroyJob.enqueue
-    DB[:que_jobs].count.should be 1
+    DB[:que_jobs_0_14_3].count.should be 1
     Que_0_14_3::Job.work
-    DB[:que_jobs].count.should be 0
+    DB[:que_jobs_0_14_3].count.should be 0
   end
 
   describe "when encountering an error" do
@@ -234,13 +234,13 @@ describe Que_0_14_3::Job, '.work' do
       result[:error].should be_an_instance_of RuntimeError
       result[:job][:job_class].should == 'ErrorJob'
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 1
       job[:last_error].should =~ /\ARuntimeError: ErrorJob!/
       job[:run_at].should be_within(3).of Time.now + 4
 
-      DB[:que_jobs].update :error_count => 5,
+      DB[:que_jobs_0_14_3].update :error_count => 5,
                            :run_at => Time.now - 60
 
       result = Que_0_14_3::Job.work
@@ -248,8 +248,8 @@ describe Que_0_14_3::Job, '.work' do
       result[:error].should be_an_instance_of RuntimeError
       result[:job][:job_class].should == 'ErrorJob'
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 6
       job[:last_error].should =~ /\ARuntimeError: ErrorJob!/
       job[:run_at].should be_within(3).of Time.now + 1299
@@ -267,13 +267,13 @@ describe Que_0_14_3::Job, '.work' do
       result[:error].should be_an_instance_of RuntimeError
       result[:job][:job_class].should == 'RetryIntervalJob'
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 1
       job[:last_error].should =~ /\ARuntimeError: ErrorJob!/
       job[:run_at].to_f.should be_within(3).of Time.now.to_f + RetryIntervalJob.retry_interval
 
-      DB[:que_jobs].update :error_count => 5,
+      DB[:que_jobs_0_14_3].update :error_count => 5,
                            :run_at => Time.now - 60
 
       result = Que_0_14_3::Job.work
@@ -281,8 +281,8 @@ describe Que_0_14_3::Job, '.work' do
       result[:error].should be_an_instance_of RuntimeError
       result[:job][:job_class].should == 'RetryIntervalJob'
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 6
       job[:last_error].should =~ /\ARuntimeError: ErrorJob!/
       job[:run_at].to_f.should be_within(3).of Time.now.to_f + RetryIntervalJob.retry_interval
@@ -300,13 +300,13 @@ describe Que_0_14_3::Job, '.work' do
       result[:error].should be_an_instance_of RuntimeError
       result[:job][:job_class].should == 'RetryIntervalFormulaJob'
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 1
       job[:last_error].should =~ /\ARuntimeError: ErrorJob!/
       job[:run_at].should be_within(3).of Time.now + 10
 
-      DB[:que_jobs].update :error_count => 5,
+      DB[:que_jobs_0_14_3].update :error_count => 5,
                            :run_at => Time.now - 60
 
       result = Que_0_14_3::Job.work
@@ -314,8 +314,8 @@ describe Que_0_14_3::Job, '.work' do
       result[:error].should be_an_instance_of RuntimeError
       result[:job][:job_class].should == 'RetryIntervalFormulaJob'
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 6
       job[:last_error].should =~ /\ARuntimeError: ErrorJob!/
       job[:run_at].should be_within(3).of Time.now + 60
@@ -372,15 +372,15 @@ describe Que_0_14_3::Job, '.work' do
     end
 
     it "should throw an error properly if there's no corresponding job class" do
-      DB[:que_jobs].insert :job_class => "NonexistentClass"
+      DB[:que_jobs_0_14_3].insert :job_class => "NonexistentClass"
 
       result = Que_0_14_3::Job.work
       result[:event].should == :job_errored
       result[:error].should be_an_instance_of NameError
       result[:job][:job_class].should == 'NonexistentClass'
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 1
       job[:last_error].should =~ /uninitialized constant:? NonexistentClass/
       job[:run_at].should be_within(3).of Time.now + 4
@@ -398,8 +398,8 @@ describe Que_0_14_3::Job, '.work' do
       result[:event].should == :job_errored
       result[:job][:job_class].should == 'J'
 
-      DB[:que_jobs].count.should be 1
-      job = DB[:que_jobs].first
+      DB[:que_jobs_0_14_3].count.should be 1
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 1
       job[:run_at].should be_within(3).of Time.now + 4
     end
@@ -418,7 +418,7 @@ describe Que_0_14_3::Job, '.work' do
       BlankExceptionMessageJob.enqueue
       result = Que_0_14_3::Job.work
       result[:event].should == :job_errored
-      job = DB[:que_jobs].first
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 1
       last_error_lines = job[:last_error].split("\n")
       last_error_lines.should == %w[RuntimeError] + BlankExceptionMessageJob.error.backtrace
@@ -438,7 +438,7 @@ describe Que_0_14_3::Job, '.work' do
       LongExceptionMessageJob.enqueue
       result = Que_0_14_3::Job.work
       result[:event].should == :job_errored
-      job = DB[:que_jobs].first
+      job = DB[:que_jobs_0_14_3].first
       job[:error_count].should be 1
       last_error_lines = job[:last_error].split("\n")
       last_error_lines.should == ["RuntimeError: #{'a' * 486}"] + LongExceptionMessageJob.error.backtrace
@@ -469,8 +469,8 @@ describe Que_0_14_3::Job, '.work' do
           result[:error].should be_an_instance_of RuntimeError
           result[:job][:job_class].should == 'CustomRetryIntervalJob'
 
-          DB[:que_jobs].count.should be 1
-          job = DB[:que_jobs].first
+          DB[:que_jobs_0_14_3].count.should be 1
+          job = DB[:que_jobs_0_14_3].first
           job[:error_count].should be 1
 
           lines = job[:last_error].split("\n")
@@ -508,7 +508,7 @@ describe Que_0_14_3::Job, '.work' do
           result[:error].should be_an_instance_of RuntimeError
           result[:job][:job_class].should == 'CustomRetryIntervalJob'
 
-          DB[:que_jobs].count.should be 0
+          DB[:que_jobs_0_14_3].count.should be 0
 
           error.should == result[:error]
         ensure
@@ -540,7 +540,7 @@ describe Que_0_14_3::Job, '.work' do
           result[:error].should be_an_instance_of RuntimeError
           result[:job][:job_class].should == 'CustomRetryIntervalJob'
 
-          DB[:que_jobs].count.should be 0
+          DB[:que_jobs_0_14_3].count.should be 0
 
           error.should == nil
         ensure
@@ -580,8 +580,8 @@ describe Que_0_14_3::Job, '.work' do
 
           $error_handler_failed.should == nil
 
-          DB[:que_jobs].count.should be 1
-          job = DB[:que_jobs].first
+          DB[:que_jobs_0_14_3].count.should be 1
+          job = DB[:que_jobs_0_14_3].first
           job[:error_count].should be 1
           job[:last_error].should =~ /\ARuntimeError: Blah!/
           job[:run_at].should be_within(3).of Time.now + 4
