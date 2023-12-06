@@ -1,0 +1,43 @@
+name: Heroku Que
+on:
+  push:
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['2.6.6']
+        postgres-version: [15]
+    runs-on: pub-hk-ubuntu-22.04-small
+    services:
+      postgres:
+        image: postgres:9.6.24
+        env:
+          POSTGRES_DB: que-test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: supersecret
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - "127.0.0.1:5432:5432"
+
+    name: Setup env & run tests
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: "Run tests"
+        env:
+          DATABASE_URL: "postgres://postgres:supersecret@127.0.0.1:5432/que-test"
+        run: bundle exec rake
